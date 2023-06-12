@@ -3,7 +3,7 @@ package com.example.kamenriderdesiregrandfighter
 class Constant {
     companion object {
         const val BASE_FORM = "Base"
-        const val Upgrade_Form = "Upgrade"
+        const val UPGRADE_FORM = "Upgrade"
         const val SUPER_FORM = "Super"
         const val FINAL_FORM = "Final"
         const val GEATS = "Geats"
@@ -22,6 +22,8 @@ class Constant {
         const val MULTI_PLAYER = "Multi-player"
         const val GAME_MODE = "GameMode"
         const val FIGHTER_SELECTION = "Fighter Selection"
-        const val WAS_SELECTED = "was selected"
+        const val CHOSEN1 = "choosing character 1"
+        const val CHOSEN2 = "choosing character 2"
+        const val FORM_CHANGE = "form change"
     }
 }

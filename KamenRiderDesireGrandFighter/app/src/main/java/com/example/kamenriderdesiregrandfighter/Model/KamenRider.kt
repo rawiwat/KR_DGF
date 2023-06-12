@@ -10,9 +10,8 @@ fun genericMoveSet(): List<Unit> {
     return moveSet
 }
 
-abstract class KamenRider (var name: String,
+sealed class KamenRider (var name: String,
                   var form: String,
-                  var formName: String,
                   var health: Int,
                   var energy: Int,
                   var attack:Int,

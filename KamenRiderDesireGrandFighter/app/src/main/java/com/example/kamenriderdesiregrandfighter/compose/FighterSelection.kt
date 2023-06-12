@@ -1,9 +1,11 @@
 package com.example.kamenriderdesiregrandfighter.compose
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +23,13 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,6 +81,7 @@ fun FighterSelectionScreen(
     gameMode: String,
     navController: NavController
 ) {
+
     val playableCharacters = listOf (
      Constant.RYUKI,
      Constant.FAIZ,
@@ -92,6 +95,7 @@ fun FighterSelectionScreen(
     var playerOneConfirmed by rememberSaveable { mutableStateOf(false) }
     var playerTwoConfirmed by rememberSaveable { mutableStateOf(false) }
 
+    val context = LocalContext.current
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -111,7 +115,23 @@ fun FighterSelectionScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(playableCharacters) {
-                    RiderInSelection(name = it, modifier = Modifier.clickable { if (!playerOneConfirmed) characterOne = it else if(!playerTwoConfirmed) characterTwo = it }, LocalContext.current)
+                    RiderInSelection(
+                        name = it,
+                        modifier = Modifier
+                        .clickable {
+                        if (!playerOneConfirmed) {
+                            characterOne = it
+                            val intent = Intent(Constant.FIGHTER_SELECTION)
+                            intent.putExtra(Constant.CHOSEN1, characterOne)
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+
+                        } else if(!playerTwoConfirmed) {
+                            characterTwo = it
+                            val intent = Intent(Constant.FIGHTER_SELECTION)
+                            intent.putExtra(Constant.CHOSEN2, characterTwo)
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                        }
+                                   }, context)
                 }
             }
             Row(
@@ -141,7 +161,9 @@ fun FighterSelectionScreen(
                 Spacer(modifier = Modifier.width(50.dp))
 
                 Button(
-                    onClick = { if (characterTwo != Constant.UNSELECTED) playerTwoConfirmed = true },
+                    onClick = {
+                        if (characterTwo != Constant.UNSELECTED) playerTwoConfirmed = true
+                    },
                     enabled = !playerTwoConfirmed) {
                     Text(text = "Confirm")
                 }
@@ -166,43 +188,44 @@ fun FighterSelectionScreen(
 @Composable
 fun RiderInSelection(name: String, modifier: Modifier, context: Context) {
 
-    val isSelected = rememberSaveable {
-        mutableStateOf(false)
-    }
-    val broadcastReceiver = object : BroadcastReceiver() {
-        // we will receive data updates in onReceive method.
-        override fun onReceive(context: Context?, intent: Intent) {
-            // Get extra data included in the Intent
-            val selected = intent.getBooleanExtra(Constant.WAS_SELECTED, false)
-            // on below line we are updating the data in our text view.
-            isSelected.value = selected
-        }
-    }
+    var chosenRider1 by rememberSaveable { mutableStateOf(Constant.UNSELECTED) }
 
-    LocalBroadcastManager.getInstance(context).registerReceiver( broadcastReceiver, IntentFilter(Constant.FIGHTER_SELECTION))
+    var chosenRider2 by rememberSaveable { mutableStateOf(Constant.UNSELECTED) }
+
+    val broadcastReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SuspiciousIndentation")
+        override fun onReceive(context: Context?, intent: Intent) {
+            val selectedRider1 = intent.getStringExtra(Constant.CHOSEN1)
+            val selectedRider2 = intent.getStringExtra(Constant.CHOSEN2)
+                if (selectedRider1 != null) {
+                    chosenRider1 = selectedRider1
+                }
+
+                if (selectedRider2 != null) {
+                    chosenRider2 = selectedRider2
+                }
+            }
+        }
+
+    LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, IntentFilter(Constant.FIGHTER_SELECTION))
 
     Card(modifier = Modifier
         .padding(5.dp)
         .height(120.dp)
         .width(85.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected.value == false) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.primaryContainer,
-        )
+        border = BorderStroke(3.dp,
+            if (chosenRider1 == name && chosenRider1 != chosenRider2) colorResource(id = R.color.red)
+            else if (chosenRider2 == name && chosenRider1 != chosenRider2) colorResource (id = R.color.dark_blue)
+            else if (chosenRider1 == name && chosenRider2 == name) colorResource(id = R.color.purple_500)
+            else MaterialTheme.colorScheme.onSecondaryContainer
+            )
     ) {
         Image(
             painter = painterResource(id = getImageIDFromName(name)),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = modifier
-                .padding(5.dp)
-                .clickable {
-                    val intent = Intent(Constant.FIGHTER_SELECTION)
-                    intent.putExtra(Constant.WAS_SELECTED, false)
-                    LocalBroadcastManager
-                        .getInstance(context)
-                        .sendBroadcast(intent)
-                    isSelected.value = !isSelected.value
-                }
+                .padding(5.dp),
         )
     }
 }
