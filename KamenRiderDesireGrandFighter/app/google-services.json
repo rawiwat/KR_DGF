@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1069643494958",
+    "project_id": "krdgf-analytic",
+    "storage_bucket": "krdgf-analytic.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069643494958:android:94f8cf369de7588737d1bf",
+        "android_client_info": {
+          "package_name": "com.example.kamenriderdesiregrandfighter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069643494958-7c6qs1pjhopante6j0k7acfcfdb1kg4m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYcVbyX3eY4E3SBnKRF-gxlbU21eWwxYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069643494958-7c6qs1pjhopante6j0k7acfcfdb1kg4m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
