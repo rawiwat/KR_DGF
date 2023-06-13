@@ -13,12 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,25 +36,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import com.example.kamenriderdesiregrandfighter.Constant
-import com.example.kamenriderdesiregrandfighter.Model.Faiz
 import com.example.kamenriderdesiregrandfighter.Model.Geats
 import com.example.kamenriderdesiregrandfighter.Model.KamenRider
+import com.example.kamenriderdesiregrandfighter.Model.Move
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.RNG
 import com.example.kamenriderdesiregrandfighter.Screen
 import com.example.kamenriderdesiregrandfighter.getFormName
+import com.example.kamenriderdesiregrandfighter.getProgressBar
 import com.example.kamenriderdesiregrandfighter.getRiderFromName
 import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
-import java.util.jar.Attributes.Name
-
 
 @Composable
 fun CombatScreen(player1:String, player2: String, gameMode: String, navController: NavController) {
 
+    val context = LocalContext.current
     val mutablePlayer1 by rememberSaveable {
         mutableStateOf(player1)
     }
@@ -60,12 +63,31 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
     }
     val rider1 = getRiderFromName(mutablePlayer1)
     val rider2 = getRiderFromName(mutablePlayer2)
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Row {
-            Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1")
-            Fighter(rider2 , if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2")
-        }
 
+    DisposableEffect(rider1) {
+        context.registerReceiver(rider1.broadcastReceiver, IntentFilter(Constant.PLAYER_ONE))
+        onDispose {
+            context.unregisterReceiver(rider1.broadcastReceiver)
+        }
+    }
+
+    DisposableEffect(rider2) {
+        context.registerReceiver(rider2.broadcastReceiver, IntentFilter(Constant.PLAYER_TWO))
+        onDispose {
+            context.unregisterReceiver(rider2.broadcastReceiver)
+        }
+    }
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column {
+            Row {
+                Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1", Constant.PLAYER_ONE, context)
+                Fighter(rider2 , if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2", Constant.PLAYER_TWO, context)
+            }
+
+            MovePanel(user = rider1, opponent = rider2,keyUser = Constant.PLAYER_ONE, keyOpponent = Constant.PLAYER_TWO, context)
+            MovePanel(user = rider2, opponent = rider1, keyUser = Constant.PLAYER_TWO, keyOpponent = Constant.PLAYER_ONE, context)
+        }
         BackHandler(enabled = true) {
             navController.navigate(route = Screen.Main.route)
         }
@@ -73,35 +95,45 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
 }
 
 @Composable
-fun Fighter(kamenRider: KamenRider, nameTag: String) {
-    val riderImage by rememberSaveable {
-        mutableStateOf(getRiderImage(kamenRider))
+fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, context: Context) {
+
+    var riderForm by rememberSaveable {
+        mutableStateOf(getRiderImage(kamenRider.name, kamenRider.form))
     }
-    val context = LocalContext.current
-    val broadcastReceiver = object : BroadcastReceiver() {
-        @SuppressLint("SuspiciousIndentation")
-        override fun onReceive(context: Context?, intent: Intent) {
-            //val currentForm = intent.getStringExtra(Constant.FORM_CHANGE)
-            //riderImage = currentForm
+
+    DisposableEffect(riderForm) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            @SuppressLint("SuspiciousIndentation")
+            override fun onReceive(context: Context?, intent: Intent) {
+                val formChange = intent.getStringExtra(Constant.FORM_CHANGE)
+                if (formChange != null) {
+                    riderForm = getRiderImage(kamenRider.name, formChange)
+                }
+            }
+        }
+
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
         }
     }
 
-    LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, IntentFilter(Constant.FIGHTER_SELECTION))
 
     Column {
         Text(text = nameTag)
         Text(text = "Kamen Rider ${kamenRider.name}")
         Text(text = "${getFormName(kamenRider)} form")
-        Row() {
-            HealthBar()
+        Row {
+            HealthBar(kamenRider, context, playerKey)
         }
 
-        Row() {
-
-            StaminaBar()
+        Row {
+            StaminaBar(kamenRider, context, playerKey)
         }
         Image(painter = painterResource(
-            id = riderImage),
+            id = riderForm
+        ),
             contentDescription = null,
             modifier = Modifier
                 .height(300.dp)
@@ -112,10 +144,30 @@ fun Fighter(kamenRider: KamenRider, nameTag: String) {
 }
 
 @Composable
-fun HealthBar() {
-    val hp by rememberSaveable {
-        mutableStateOf(1f)
+fun HealthBar(kamenRider: KamenRider, context: Context, playerKey: String) {
+    val maxHp = kamenRider.health
+    var currentHp by rememberSaveable {
+        mutableStateOf(kamenRider.health)
     }
+    DisposableEffect(currentHp) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+
+            override fun onReceive(context: Context?, intent: Intent) {
+                val healthUp = intent.getIntExtra(Constant.HEALTH_UP,0)
+                currentHp += healthUp
+                val healthDown = intent.getIntExtra(Constant.HEALTH_DOWN,0)
+                currentHp -= healthDown
+                println("Current Hp is : $currentHp")
+            }
+        }
+
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
+    }
+
     Card(Modifier.width(120.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -128,7 +180,7 @@ fun HealthBar() {
                     modifier = Modifier
                         .height(15.dp)
                         .width(100.dp),
-            progress = hp,
+            progress = getProgressBar(maxHp, currentHp),
             color = colorResource(id = R.color.red)
             )
         }
@@ -136,9 +188,27 @@ fun HealthBar() {
 }
 
 @Composable
-fun StaminaBar() {
-    val sp by rememberSaveable {
-        mutableStateOf(1f)
+fun StaminaBar(kamenRider: KamenRider, context: Context, playerKey: String) {
+    val maxSp = kamenRider.energy
+    var currentSp by rememberSaveable {
+        mutableStateOf(kamenRider.energy)
+    }
+    DisposableEffect(currentSp) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+
+            override fun onReceive(context: Context?, intent: Intent) {
+                val energyUp = intent.getIntExtra(Constant.ENERGY_UP,0)
+                currentSp += energyUp
+                val energyDown = intent.getIntExtra(Constant.ENERGY_DOWN,0)
+                currentSp -= energyDown
+                println("Current Sp is : $currentSp")
+            }
+        }
+
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
     }
 
     Card(Modifier.width(120.dp)) {
@@ -153,7 +223,7 @@ fun StaminaBar() {
                 modifier = Modifier
                     .height(15.dp)
                     .width(100.dp),
-                progress = sp,
+                progress = getProgressBar(maxSp ,currentSp),
                 color = colorResource(id = R.color.teal_200)
             )
         }
@@ -161,17 +231,46 @@ fun StaminaBar() {
 }
 
 @Composable
-fun Move(onClick:() -> Unit, moveName: String) {
-Button(onClick = onClick) {
+fun MoveButton(user: KamenRider, opponent: KamenRider, move: Move, keyUser: String, keyOpponent: String, context: Context) {
+Button(
+    onClick = { move.function(user, opponent, keyUser, keyOpponent,context) },
+    modifier = Modifier.width(80.dp)
+) {
     Text(
-        text = moveName
+        text = move.name
     )
 }
 }
+
+@Composable
+fun MovePanel(user: KamenRider, opponent: KamenRider, keyUser:String, keyOpponent: String, context: Context) {
+    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+        items(user.moveSet) {
+            MoveButton(
+                user = user,
+                opponent = opponent,
+                move = it,
+                keyUser = keyUser,
+                keyOpponent = keyOpponent,
+                context = context)
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FighterPreview() {
     KamenRiderDesireGrandFighterTheme() {
-        Fighter(Geats(), nameTag = "Player 1")
+        Fighter(Geats(), nameTag = "Player 1", "", LocalContext.current)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CombatScreenPreview() {
+    KamenRiderDesireGrandFighterTheme {
+        CombatScreen(player1 = Constant.GEATS, player2 = Constant.RYUKI, gameMode = Constant.MULTI_PLAYER, navController = NavController(
+            LocalContext.current)
+        )
     }
 }

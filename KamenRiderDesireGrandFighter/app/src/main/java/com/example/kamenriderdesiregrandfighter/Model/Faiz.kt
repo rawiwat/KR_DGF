@@ -9,5 +9,7 @@ class Faiz:KamenRider(
     2,
     2,
     3,
-    4
+    4,
+    1,
+    2
 )

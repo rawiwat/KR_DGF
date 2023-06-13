@@ -167,14 +167,14 @@ fun RiderInSelection(name: String, modifier: Modifier, context: Context) {
     var chosenRider2 by rememberSaveable { mutableStateOf(Constant.UNSELECTED) }
 
     val broadcastReceiver = object : BroadcastReceiver() {
+
         @SuppressLint("SuspiciousIndentation")
         override fun onReceive(context: Context?, intent: Intent) {
             val selectedRider1 = intent.getStringExtra(Constant.CHOSEN1)
-            val selectedRider2 = intent.getStringExtra(Constant.CHOSEN2)
                 if (selectedRider1 != null) {
                     chosenRider1 = selectedRider1
                 }
-
+            val selectedRider2 = intent.getStringExtra(Constant.CHOSEN2)
                 if (selectedRider2 != null) {
                     chosenRider2 = selectedRider2
                 }

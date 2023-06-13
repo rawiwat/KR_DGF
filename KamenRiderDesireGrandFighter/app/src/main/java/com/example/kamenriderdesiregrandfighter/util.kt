@@ -35,41 +35,41 @@ fun getImageIDFromName(name: String): Int {
     return id
 }
 
-fun getRiderImage(kamenRider: KamenRider): Int {
+fun getRiderImage(kamenRiderName: String, kamenRiderForm: String): Int {
     var formImageID = 0
-    if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.BASE_FORM) {
+    if (kamenRiderName == Constant.GEATS && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.geats
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.UPGRADE_FORM) {
+    } else if (kamenRiderName == Constant.GEATS && kamenRiderForm == Constant.UPGRADE_FORM) {
         formImageID = R.drawable.geats_upgrade
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.SUPER_FORM) {
+    } else if (kamenRiderName == Constant.GEATS && kamenRiderForm == Constant.SUPER_FORM) {
         formImageID = R.drawable.geats_super
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.GEATS && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.geats_final
-    } else if (kamenRider.name == Constant.RYUKI && kamenRider.form == Constant.BASE_FORM) {
+    } else if (kamenRiderName == Constant.RYUKI && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.ryuki
-    } else if (kamenRider.name == Constant.RYUKI && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.RYUKI && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.ryuki_final
-    } else if (kamenRider.name == Constant.FAIZ && kamenRider.form == Constant.BASE_FORM) {
+    } else if (kamenRiderName == Constant.FAIZ && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.faiz
-    } else if (kamenRider.name == Constant.FAIZ && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.FAIZ && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.faiz_final
-    } else if (kamenRider.name == Constant.KABUTO && kamenRider.form == Constant.BASE_FORM) {
+    } else if (kamenRiderName == Constant.KABUTO && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.kabuto
-    } else if (kamenRider.name == Constant.KABUTO && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.KABUTO && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.kabuto_final
-    } else if (kamenRider.name == Constant.GAIM && kamenRider.form == Constant.BASE_FORM) {
+    } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.gaim
-    } else if (kamenRider.name == Constant.GAIM && kamenRider.form == Constant.UPGRADE_FORM) {
+    } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.UPGRADE_FORM) {
         formImageID = R.drawable.gaim_upgrade
-    } else if (kamenRider.name == Constant.GAIM && kamenRider.form == Constant.SUPER_FORM) {
+    } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.SUPER_FORM) {
         formImageID = R.drawable.gaim_super
-    } else if (kamenRider.name == Constant.GAIM && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.gaim_final
-    } else if (kamenRider.name == Constant.OOO && kamenRider.form == Constant.BASE_FORM) {
+    } else if (kamenRiderName == Constant.OOO && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.ooo
-    } else if (kamenRider.name == Constant.OOO && kamenRider.form == Constant.SUPER_FORM) {
+    } else if (kamenRiderName == Constant.OOO && kamenRiderForm == Constant.SUPER_FORM) {
         formImageID = R.drawable.ooo_super
-    } else if (kamenRider.name == Constant.OOO && kamenRider.form == Constant.FINAL_FORM) {
+    } else if (kamenRiderName == Constant.OOO && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.ooo_final
     }
 
@@ -128,4 +128,10 @@ fun getRiderFromName(name: String): KamenRider {
         else Gaim()
 
     return rider
+}
+
+fun getProgressBar(max: Int, current: Int): Float {
+    val result = (current.toFloat() / max.toFloat())
+    println("result = $result")
+    return result
 }
