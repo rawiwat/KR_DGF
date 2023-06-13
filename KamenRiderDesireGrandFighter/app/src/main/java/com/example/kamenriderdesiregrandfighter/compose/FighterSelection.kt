@@ -47,34 +47,8 @@ import com.example.kamenriderdesiregrandfighter.Constant
 import com.example.kamenriderdesiregrandfighter.MainActivity
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.Screen
+import com.example.kamenriderdesiregrandfighter.getImageIDFromName
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
-
-fun getImageIDFromName(name: String): Int {
-    val id = when (name) {
-        Constant.GEATS -> {
-            R.drawable.geats
-        }
-        Constant.RYUKI -> {
-            R.drawable.ryuki
-        }
-        Constant.KABUTO -> {
-            R.drawable.kabuto
-        }
-        Constant.GAIM -> {
-            R.drawable.gaim
-        }
-        Constant.FAIZ -> {
-            R.drawable.faiz
-        }
-        Constant.OOO -> {
-            R.drawable.ooo
-        }
-        else -> {
-            R.drawable.krlogo
-        }
-    }
-    return id
-}
 
 @Composable
 fun FighterSelectionScreen(

@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -37,64 +41,29 @@ import com.example.kamenriderdesiregrandfighter.Model.KamenRider
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.RNG
 import com.example.kamenriderdesiregrandfighter.Screen
+import com.example.kamenriderdesiregrandfighter.getFormName
+import com.example.kamenriderdesiregrandfighter.getRiderFromName
+import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
-
-fun getRiderImage(kamenRider: KamenRider): Int {
-var formImageID = 0
-    if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.BASE_FORM) {
-        formImageID = R.drawable.geats
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.UPGRADE_FORM) {
-        formImageID = R.drawable.geats_upgrade
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.SUPER_FORM) {
-        formImageID = R.drawable.geats_super
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.FINAL_FORM) {
-        formImageID = R.drawable.geats_final
-    } else if (kamenRider.name == Constant.RYUKI && kamenRider.form == Constant.BASE_FORM) {
-        formImageID = R.drawable.ryuki
-    } else if (kamenRider.name == Constant.RYUKI && kamenRider.form == Constant.FINAL_FORM) {
-        formImageID = R.drawable.ryuki_final
-    } else if (kamenRider.name == Constant.FAIZ && kamenRider.form == Constant.BASE_FORM) {
-        formImageID = R.drawable.faiz
-    } else if (kamenRider.name == Constant.FAIZ && kamenRider.form == Constant.FINAL_FORM) {
-        formImageID = R.drawable.faiz_final
-    } else if (kamenRider.name == Constant.KABUTO && kamenRider.form == Constant.BASE_FORM) {
-        formImageID = R.drawable.kabuto
-    } else if (kamenRider.name == Constant.KABUTO && kamenRider.form == Constant.FINAL_FORM) {
-        formImageID = R.drawable.kabuto_final
-    }
-
-    return formImageID
-}
-
-fun getFormName(kamenRider: KamenRider): String {
-    var formName = ""
-    if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.BASE_FORM) {
-        formName = "Magnum Boost"
-    } else if (kamenRider.name == Constant.GEATS && kamenRider.form == Constant.UPGRADE_FORM) {
-        formName = "Command"
-    }
+import java.util.jar.Attributes.Name
 
 
-
-    return formName
-
-}
-
-fun getRiderFromName(name: String): KamenRider {
-    var rider:KamenRider = if (name == Constant.GEATS) Geats()
-    else Faiz()
-
-    return rider
-}
 @Composable
 fun CombatScreen(player1:String, player2: String, gameMode: String, navController: NavController) {
 
-    val rider1 = getRiderFromName(player1)
-    val rider2 = getRiderFromName(player2)
+    val mutablePlayer1 by rememberSaveable {
+        mutableStateOf(player1)
+    }
+
+    val mutablePlayer2 by rememberSaveable {
+        mutableStateOf(if (gameMode == Constant.MULTI_PLAYER) player2 else RNG().getRandomRider())
+    }
+    val rider1 = getRiderFromName(mutablePlayer1)
+    val rider2 = getRiderFromName(mutablePlayer2)
     Surface(modifier = Modifier.fillMaxSize()) {
         Row {
             Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1")
-            Fighter(if (player2 != Constant.UNSELECTED) rider2 else getRiderFromName(RNG().getRandomRider()) , if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2")
+            Fighter(rider2 , if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2")
         }
 
         BackHandler(enabled = true) {
@@ -105,14 +74,14 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
 
 @Composable
 fun Fighter(kamenRider: KamenRider, nameTag: String) {
-    var riderImage by rememberSaveable {
+    val riderImage by rememberSaveable {
         mutableStateOf(getRiderImage(kamenRider))
     }
     val context = LocalContext.current
     val broadcastReceiver = object : BroadcastReceiver() {
         @SuppressLint("SuspiciousIndentation")
         override fun onReceive(context: Context?, intent: Intent) {
-            val currentForm = intent.getStringExtra(Constant.FORM_CHANGE)
+            //val currentForm = intent.getStringExtra(Constant.FORM_CHANGE)
             //riderImage = currentForm
         }
     }
@@ -124,20 +93,11 @@ fun Fighter(kamenRider: KamenRider, nameTag: String) {
         Text(text = "Kamen Rider ${kamenRider.name}")
         Text(text = "${getFormName(kamenRider)} form")
         Row() {
-            Text(
-                text = "HP",
-                modifier = Modifier.height(15.dp),
-                fontSize = 15.sp
-            )
             HealthBar()
         }
 
         Row() {
-            Text(
-                text = "SP",
-                modifier = Modifier.height(15.dp),
-                fontSize = 15.sp
-            )
+
             StaminaBar()
         }
         Image(painter = painterResource(
@@ -156,27 +116,57 @@ fun HealthBar() {
     val hp by rememberSaveable {
         mutableStateOf(1f)
     }
-    LinearProgressIndicator(
-        modifier = Modifier
-            .height(15.dp)
-            .width(100.dp),
-        progress = hp,
-        color = colorResource(id = R.color.red)
-    )
+    Card(Modifier.width(120.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "HP :",
+                modifier = Modifier.padding(3.dp),
+                fontSize = 7.sp,
+                color = colorResource(id = R.color.red)
+            )
+            LinearProgressIndicator(
+                    modifier = Modifier
+                        .height(15.dp)
+                        .width(100.dp),
+            progress = hp,
+            color = colorResource(id = R.color.red)
+            )
+        }
+    }
 }
 
 @Composable
 fun StaminaBar() {
-    val hp by rememberSaveable {
+    val sp by rememberSaveable {
         mutableStateOf(1f)
     }
-    LinearProgressIndicator(
-        modifier = Modifier
-            .height(15.dp)
-            .width(100.dp),
-        progress = hp,
-        //color = colorResource(id = R.color.dark_blue)
+
+    Card(Modifier.width(120.dp)) {
+        Row() {
+            Text(
+                text = "SP :",
+                modifier = Modifier.padding(3.dp),
+                fontSize = 7.sp,
+                color = colorResource(id = R.color.teal_200)
+            )
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .height(15.dp)
+                    .width(100.dp),
+                progress = sp,
+                color = colorResource(id = R.color.teal_200)
+            )
+        }
+    }
+}
+
+@Composable
+fun Move(onClick:() -> Unit, moveName: String) {
+Button(onClick = onClick) {
+    Text(
+        text = moveName
     )
+}
 }
 @Preview(showBackground = true)
 @Composable
