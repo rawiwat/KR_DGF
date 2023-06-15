@@ -1,14 +1,15 @@
 package com.example.kamenriderdesiregrandfighter.compose
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,10 +43,11 @@ import com.example.kamenriderdesiregrandfighter.Model.Geats
 import com.example.kamenriderdesiregrandfighter.Model.KamenRider
 import com.example.kamenriderdesiregrandfighter.Model.Move
 import com.example.kamenriderdesiregrandfighter.R
-import com.example.kamenriderdesiregrandfighter.RNG
 import com.example.kamenriderdesiregrandfighter.Screen
 import com.example.kamenriderdesiregrandfighter.getFormName
 import com.example.kamenriderdesiregrandfighter.getProgressBar
+import com.example.kamenriderdesiregrandfighter.getRandomPlayer
+import com.example.kamenriderdesiregrandfighter.getRandomRider
 import com.example.kamenriderdesiregrandfighter.getRiderFromName
 import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
@@ -59,55 +61,133 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
     }
 
     val mutablePlayer2 by rememberSaveable {
-        mutableStateOf(if (gameMode == Constant.MULTI_PLAYER) player2 else RNG().getRandomRider())
+        mutableStateOf(if (gameMode == Constant.MULTI_PLAYER) player2 else getRandomRider())
     }
+
     val rider1 = getRiderFromName(mutablePlayer1)
+
+    context.registerReceiver(rider1.broadcastReceiver, IntentFilter(Constant.PLAYER_ONE))
+
     val rider2 = getRiderFromName(mutablePlayer2)
 
-    DisposableEffect(rider1) {
-        context.registerReceiver(rider1.broadcastReceiver, IntentFilter(Constant.PLAYER_ONE))
-        onDispose {
-            context.unregisterReceiver(rider1.broadcastReceiver)
-        }
+    context.registerReceiver(rider2.broadcastReceiver, IntentFilter(Constant.PLAYER_TWO))
+
+    var gameOver by rememberSaveable {
+        mutableStateOf(false)
     }
 
-    DisposableEffect(rider2) {
-        context.registerReceiver(rider2.broadcastReceiver, IntentFilter(Constant.PLAYER_TWO))
-        onDispose {
-            context.unregisterReceiver(rider2.broadcastReceiver)
+    var winner = ""
+    val gameOverReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val gameState = intent.getBooleanExtra(Constant.GAME_OVER, false)
+            gameOver = gameState
+            val playerWon = intent.getStringExtra(Constant.WINNER)
+            if (playerWon != null) {
+                winner = playerWon
+            }
         }
     }
+    context.registerReceiver(gameOverReceiver, IntentFilter(Constant.GAME_OVER) )
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Row {
-                Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1", Constant.PLAYER_ONE, context)
-                Fighter(rider2 , if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2", Constant.PLAYER_TWO, context)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row (horizontalArrangement = Arrangement.Center){
+                Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1", Constant.PLAYER_ONE, Constant.PLAYER_TWO, context)
+                Spacer(modifier = Modifier.width(10.dp))
+                Fighter(rider2, if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2", Constant.PLAYER_TWO, Constant.PLAYER_ONE, context)
             }
 
-            MovePanel(user = rider1, opponent = rider2,keyUser = Constant.PLAYER_ONE, keyOpponent = Constant.PLAYER_TWO, context)
-            MovePanel(user = rider2, opponent = rider1, keyUser = Constant.PLAYER_TWO, keyOpponent = Constant.PLAYER_ONE, context)
+            var currentTurn by rememberSaveable {
+                mutableStateOf(getRandomPlayer())
+            }
+
+            DisposableEffect(currentTurn) {
+                val turnBroadcastReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent) {
+                        val turnChanged = intent.getStringExtra(Constant.TURN_CHANGE)
+                        if (turnChanged != null) {
+                            currentTurn = turnChanged
+                        }
+                    }
+                }
+                context.registerReceiver(turnBroadcastReceiver,
+                    IntentFilter(Constant.TURN_CHANGE) )
+
+                onDispose {
+                    context.unregisterReceiver(turnBroadcastReceiver)
+                }
+            }
+
+            if (currentTurn == Constant.PLAYER_ONE && !gameOver) {
+                Text(text = "Turn Player 1")
+            } else if (currentTurn == Constant.PLAYER_TWO && !gameOver) {
+                Text(text = "Turn Player 2")
+            }
+            if (currentTurn == Constant.PLAYER_ONE && !gameOver) {
+                MovePanel(user = rider1, opponent = rider2,keyUser = Constant.PLAYER_ONE, keyOpponent = Constant.PLAYER_TWO, context)
+            } else if (currentTurn == Constant.PLAYER_TWO && !gameOver){
+                MovePanel(user = rider2, opponent = rider1, keyUser = Constant.PLAYER_TWO, keyOpponent = Constant.PLAYER_ONE, context)
+            }
         }
+
         BackHandler(enabled = true) {
             navController.navigate(route = Screen.Main.route)
         }
+
+        if(gameOver) GameOverMenu(winner = winner, navController = navController, player1, player2, gameMode)
     }
 }
 
 @Composable
-fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, context: Context) {
+fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponentKey: String, context: Context) {
+    val maxHp = kamenRider.health
+
+    val maxSp = Constant.MAX_ENERGY
 
     var riderForm by rememberSaveable {
-        mutableStateOf(getRiderImage(kamenRider.name, kamenRider.form))
+        mutableStateOf(kamenRider.form)
+    }
+
+    var currentHealth by rememberSaveable {
+        mutableStateOf(kamenRider.health)
+    }
+
+    var currentSp by rememberSaveable {
+        mutableStateOf(kamenRider.energy)
+    }
+
+    var currentGauge by rememberSaveable {
+        mutableStateOf(kamenRider.gauge)
+    }
+
+    DisposableEffect(currentHealth) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val healthUp = intent.getIntExtra(Constant.HEALTH_UP,0)
+                currentHealth += healthUp
+                val healthDown = intent.getIntExtra(Constant.HEALTH_DOWN, 0)
+                currentHealth -= healthDown
+                if (currentHealth <= 0) {
+                    val gameState = Intent(Constant.GAME_OVER)
+                    gameState.putExtra(Constant.GAME_OVER, true)
+                    gameState.putExtra(Constant.WINNER, opponentKey)
+                    context.sendBroadcast(gameState)
+                }
+                println("Current Health = $currentHealth")
+            }
+        }
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
     }
 
     DisposableEffect(riderForm) {
         val broadcastReceiver = object : BroadcastReceiver() {
-            @SuppressLint("SuspiciousIndentation")
             override fun onReceive(context: Context?, intent: Intent) {
                 val formChange = intent.getStringExtra(Constant.FORM_CHANGE)
                 if (formChange != null) {
-                    riderForm = getRiderImage(kamenRider.name, formChange)
+                    riderForm = formChange
                 }
             }
         }
@@ -119,20 +199,51 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, context:
         }
     }
 
+    DisposableEffect(currentSp) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val energyUp = intent.getIntExtra(Constant.ENERGY_UP,0)
+                currentSp += energyUp
+                val energyDown = intent.getIntExtra(Constant.ENERGY_DOWN, 0)
+                currentSp -= energyDown
+                println("Current Energy Bar = $currentSp")
+            }
+        }
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
+    }
+
+    DisposableEffect(currentGauge) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val gaugeUp = intent.getIntExtra(Constant.GAUGE_UP,0)
+                currentGauge += gaugeUp
+                val gaugeDown = intent.getIntExtra(Constant.GAUGE_DOWN, 0)
+                currentGauge -= gaugeDown
+
+                println("Current Gauge Bar= $currentGauge")
+            }
+        }
+
+        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
+    }
 
     Column {
         Text(text = nameTag)
         Text(text = "Kamen Rider ${kamenRider.name}")
-        Text(text = "${getFormName(kamenRider)} form")
-        Row {
-            HealthBar(kamenRider, context, playerKey)
-        }
+        Text(text = "${getFormName(kamenRider.name, riderForm)} form")
 
-        Row {
-            StaminaBar(kamenRider, context, playerKey)
-        }
-        Image(painter = painterResource(
-            id = riderForm
+        StatsBar(max = maxHp, current = currentHealth, text = "HP :", colorId = R.color.red)
+        StatsBar(max = maxSp, current = currentSp, text = "SP :", colorId = R.color.teal_200)
+        StatsBar(max = 5, current = currentGauge, text = "RP :", colorId = R.color.yellow)
+
+        Image (painter = painterResource(
+            id = getRiderImage(kamenRider.name, riderForm)
         ),
             contentDescription = null,
             modifier = Modifier
@@ -144,87 +255,22 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, context:
 }
 
 @Composable
-fun HealthBar(kamenRider: KamenRider, context: Context, playerKey: String) {
-    val maxHp = kamenRider.health
-    var currentHp by rememberSaveable {
-        mutableStateOf(kamenRider.health)
-    }
-    DisposableEffect(currentHp) {
-        val broadcastReceiver = object : BroadcastReceiver() {
-
-            override fun onReceive(context: Context?, intent: Intent) {
-                val healthUp = intent.getIntExtra(Constant.HEALTH_UP,0)
-                currentHp += healthUp
-                val healthDown = intent.getIntExtra(Constant.HEALTH_DOWN,0)
-                currentHp -= healthDown
-                println("Current Hp is : $currentHp")
-            }
-        }
-
-        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
-
-        onDispose {
-            context.unregisterReceiver(broadcastReceiver)
-        }
-    }
+fun StatsBar(max: Int, current: Int, text: String, colorId: Int) {
 
     Card(Modifier.width(120.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "HP :",
+                text = text,
                 modifier = Modifier.padding(3.dp),
                 fontSize = 7.sp,
-                color = colorResource(id = R.color.red)
-            )
-            LinearProgressIndicator(
-                    modifier = Modifier
-                        .height(15.dp)
-                        .width(100.dp),
-            progress = getProgressBar(maxHp, currentHp),
-            color = colorResource(id = R.color.red)
-            )
-        }
-    }
-}
-
-@Composable
-fun StaminaBar(kamenRider: KamenRider, context: Context, playerKey: String) {
-    val maxSp = kamenRider.energy
-    var currentSp by rememberSaveable {
-        mutableStateOf(kamenRider.energy)
-    }
-    DisposableEffect(currentSp) {
-        val broadcastReceiver = object : BroadcastReceiver() {
-
-            override fun onReceive(context: Context?, intent: Intent) {
-                val energyUp = intent.getIntExtra(Constant.ENERGY_UP,0)
-                currentSp += energyUp
-                val energyDown = intent.getIntExtra(Constant.ENERGY_DOWN,0)
-                currentSp -= energyDown
-                println("Current Sp is : $currentSp")
-            }
-        }
-
-        context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
-        onDispose {
-            context.unregisterReceiver(broadcastReceiver)
-        }
-    }
-
-    Card(Modifier.width(120.dp)) {
-        Row() {
-            Text(
-                text = "SP :",
-                modifier = Modifier.padding(3.dp),
-                fontSize = 7.sp,
-                color = colorResource(id = R.color.teal_200)
+                color = colorResource(id = colorId)
             )
             LinearProgressIndicator(
                 modifier = Modifier
                     .height(15.dp)
                     .width(100.dp),
-                progress = getProgressBar(maxSp ,currentSp),
-                color = colorResource(id = R.color.teal_200)
+                progress = getProgressBar(max, current),
+                color = colorResource(id = colorId)
             )
         }
     }
@@ -232,14 +278,14 @@ fun StaminaBar(kamenRider: KamenRider, context: Context, playerKey: String) {
 
 @Composable
 fun MoveButton(user: KamenRider, opponent: KamenRider, move: Move, keyUser: String, keyOpponent: String, context: Context) {
-Button(
-    onClick = { move.function(user, opponent, keyUser, keyOpponent,context) },
-    modifier = Modifier.width(80.dp)
-) {
-    Text(
-        text = move.name
-    )
-}
+    Button(
+        onClick = { move.function(user, opponent, keyUser, keyOpponent, context) },
+        modifier = Modifier.width(80.dp)
+    ) {
+        Text(
+            text = move.name
+        )
+    }
 }
 
 @Composable
@@ -257,11 +303,45 @@ fun MovePanel(user: KamenRider, opponent: KamenRider, keyUser:String, keyOpponen
     }
 }
 
+@Composable
+fun GameOverMenu(winner: String, navController: NavController, player1: String, player2: String, gameMode: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Surface() {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Game Over!")
+                Text(text = "$winner Won!")
+                Row() {
+                    Button(onClick = { navController.navigate(route = Screen.Main.route)}) {
+                        Text(text = "Back to Main")
+                    }
+                    Button(onClick = { navController.navigate(route = Screen.Combat.passCombatSetting(player1, player2, gameMode))}) {
+                        Text(text = "Rematch")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun GameOverPreview() {
+    KamenRiderDesireGrandFighterTheme {
+        GameOverMenu(Constant.PLAYER_ONE, NavController(LocalContext.current),"", "", "")
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun FighterPreview() {
-    KamenRiderDesireGrandFighterTheme() {
-        Fighter(Geats(), nameTag = "Player 1", "", LocalContext.current)
+    KamenRiderDesireGrandFighterTheme {
+        Fighter(Geats(), nameTag = "Player 1", "", "",LocalContext.current)
     }
 }
 

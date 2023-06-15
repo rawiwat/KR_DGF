@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.kamenriderdesiregrandfighter.Constant
-import com.example.kamenriderdesiregrandfighter.RNG
 import com.example.kamenriderdesiregrandfighter.Screen
 
 @Composable
