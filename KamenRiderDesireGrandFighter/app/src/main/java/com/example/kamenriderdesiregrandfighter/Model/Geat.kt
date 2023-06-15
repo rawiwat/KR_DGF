@@ -6,9 +6,9 @@ import com.example.kamenriderdesiregrandfighter.Constant
 
 class Geats: KamenRider(Constant.GEATS,
                         Constant.BASE_FORM,
-                        100,10,10,10,10,1,
+                        100,10,10,10,90,1,
 ) {
-    private class CommandForm: Move("Command Buckle") {
+    private class CommandForm: Move("Command Buckle","2 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -28,7 +28,7 @@ class Geats: KamenRider(Constant.GEATS,
         }
     }
 
-    private class LaserBoost: Move("Laser Boost") {
+    private class LaserBoost: Move("Laser Boost","3 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -49,7 +49,7 @@ class Geats: KamenRider(Constant.GEATS,
         }
     }
 
-    private class GeatIX: Move("Mark IX") {
+    private class GeatIX: Move("Mark IX","5 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,

@@ -1,6 +1,20 @@
 package com.example.kamenriderdesiregrandfighter.Model
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.kamenriderdesiregrandfighter.Constant
+import com.example.kamenriderdesiregrandfighter.compose.Fighter
+import com.example.kamenriderdesiregrandfighter.compose.MovePanel
+import com.example.kamenriderdesiregrandfighter.damageCalculation
+import com.example.kamenriderdesiregrandfighter.getMessageIntent
+import com.example.kamenriderdesiregrandfighter.giveAGauge
+import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
 
 class Faiz:KamenRider(
     Constant.FAIZ,
@@ -8,7 +22,233 @@ class Faiz:KamenRider(
     100,
     10,
     12,
-    1,
-    2,
-    2,
-)
+    52,
+    75,
+    8,
+) {
+    class AutoVajin: Move("AutoVajin","20 SP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= 20) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,20)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.25,1.2)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    class FaizPhone: Move("Faiz Phone","20 SP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= 20) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,20)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.1,1.0)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                intent.putExtra(Constant.DEFENSE_DOWN, 2)
+                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    intent.putExtra(Constant.DEFENSE_DOWN, 2)
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    class FaizEdge: Move("Faiz Edge","25 SP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= 20) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,20)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.25,1.1)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    intent.putExtra(Constant.DEFENSE_DOWN, 2)
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    class FaizShot: Move("Faiz Shot","25 SP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= 20) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,20)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.25,1.1)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    intent.putExtra(Constant.DEFENSE_DOWN, 2)
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    class AxelForm: Move("Axelwatch","2 RP",) {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.form == Constant.BASE_FORM && user.gauge >= 2) {
+                var duration = 6
+                val cooldownReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        val counter = intent?.getStringExtra(Constant.TURN_CHANGE)
+                        if (counter != null) {
+                            duration -= 1
+                            if (duration == 0 && user.form == Constant.SUPER_FORM) {
+                                val timeOut = Intent(keyUser)
+                                timeOut.putExtra(Constant.SPEED_SET,53)
+                                timeOut.putExtra(Constant.FORM_CHANGE,Constant.BASE_FORM)
+                                context?.sendBroadcast(timeOut)
+                            }
+                        }
+                    }
+                }
+                context.registerReceiver(cooldownReceiver, IntentFilter(Constant.TURN_CHANGE))
+                val intent = Intent(keyUser)
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                intent.putExtra(Constant.FORM_CHANGE, Constant.SUPER_FORM)
+                intent.putExtra(Constant.GAUGE_DOWN, 2)
+                intent.putExtra(Constant.SPEED_SET, 250)
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    class CrimsonSmash: Move("Exceed Charge","4 RP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.gauge >= 4) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.GAUGE_DOWN,4)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,4.5,3.0)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                getMessageIntent(intent, damage)
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    private class Blaster: Move("Faiz Blaster", "4 RP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.form == Constant.BASE_FORM && user.gauge >= 4) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
+                intent.putExtra(Constant.GAUGE_DOWN,4)
+                intent.putExtra(Constant.ATTACK_SET,18)
+                intent.putExtra(Constant.ACCURACY_SET,85)
+                intent.putExtra(Constant.SPEED_SET,60)
+                intent.putExtra(Constant.DEFENSE_SET,15)
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+    init {
+        val moveList: MutableList<Move> = mutableListOf(
+            FaizPhone(),
+            FaizEdge(),
+            FaizShot(),
+            AutoVajin(),
+            AxelForm(),
+            CrimsonSmash(),
+            Blaster()
+        )
+        for (move in moveList) { moveSet.add(move) }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FaizPreview() {
+    KamenRiderDesireGrandFighterTheme {
+        Column {
+            Fighter(kamenRider = Faiz(), nameTag = Constant.PLAYER_ONE, playerKey = "", opponentKey = "", context = LocalContext.current)
+            MovePanel(user = Faiz(), opponent = Kabuto(), keyUser = "", keyOpponent = "", context = LocalContext.current)
+        }
+    }
+}

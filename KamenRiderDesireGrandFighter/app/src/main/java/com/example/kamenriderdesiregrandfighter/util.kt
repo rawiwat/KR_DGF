@@ -2,6 +2,16 @@ package com.example.kamenriderdesiregrandfighter
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.debugInspectorInfo
 import com.example.kamenriderdesiregrandfighter.Model.Faiz
 import com.example.kamenriderdesiregrandfighter.Model.Gaim
 import com.example.kamenriderdesiregrandfighter.Model.Geats
@@ -54,12 +64,16 @@ fun getRiderImage(kamenRiderName: String, kamenRiderForm: String): Int {
         formImageID = R.drawable.ryuki_final
     } else if (kamenRiderName == Constant.FAIZ && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.faiz
+    } else if (kamenRiderName == Constant.FAIZ && kamenRiderForm == Constant.SUPER_FORM) {
+        formImageID = R.drawable.faiz_super
     } else if (kamenRiderName == Constant.FAIZ && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.faiz_final
     } else if (kamenRiderName == Constant.KABUTO && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.kabuto
     } else if (kamenRiderName == Constant.KABUTO && kamenRiderForm == Constant.FINAL_FORM) {
         formImageID = R.drawable.kabuto_final
+    } else if (kamenRiderName == Constant.KABUTO && kamenRiderForm == Constant.UPGRADE_FORM) {
+        formImageID = R.drawable.kabuto_upgrade
     } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.BASE_FORM) {
         formImageID = R.drawable.gaim
     } else if (kamenRiderName == Constant.GAIM && kamenRiderForm == Constant.UPGRADE_FORM) {
@@ -144,7 +158,14 @@ fun getProgressBar(max: Int, current: Int): Float {
     return result
 }
 
-fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: Double, accuracyMultiplier: Double):Int {
+data class DMGresult(val dmg: Int, val hit:Boolean, val crit:Boolean)
+
+fun damageCalculation(
+    user: KamenRider,
+    opponent: KamenRider,
+    powerMultiplier: Double,
+    accuracyMultiplier: Double
+): DMGresult {
 
     val powerGap = if (user.attack > opponent.defense) {
         user.attack - opponent.defense
@@ -162,9 +183,9 @@ fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: D
         0
     }
 
-    val dodgeChance = ((opponent.speed + opponent.luck))
+    var dodgeChance = (opponent.speed + opponent.luck)
 
-    val critChance = (user.luck + opponent.luck) / 10
+    var critChance = (user.luck + opponent.luck) / 10
 
     val speedGap = if (user.speed > opponent.speed) {
         user.speed - opponent.speed
@@ -174,17 +195,24 @@ fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: D
         0
     }
 
-    if (user.luck >= opponent.luck) dodgeChance + Random.nextInt(luckGap) else dodgeChance - Random.nextInt(luckGap)
-    if (user.speed > opponent.speed) dodgeChance + Random.nextInt(speedGap) else dodgeChance - Random.nextInt(speedGap)
-    if (user.luck >= opponent.luck) critChance + luckGap else critChance - luckGap
+    if (user.luck >= opponent.luck) {
+        dodgeChance += luckGap
+        critChance += luckGap
+    } else {
+        dodgeChance -= luckGap
+        critChance -= luckGap
+    }
+
+    if (user.speed >= opponent.speed) dodgeChance + speedGap else dodgeChance - speedGap
+
     var result = 0
-    val possibleOutcome = listOf(true,false)
+    val possibleOutcome = listOf(true, false)
     val randomizingOutComeHit = mutableListOf<Boolean>()
     val randomizingOutComeCrit = mutableListOf<Boolean>()
 
     for (outcome in possibleOutcome) {
-        val randomHit = if(outcome) (user.speed + user.luck + user.accuracy) * accuracyMultiplier.toInt() else dodgeChance
-        val randomCrit = if(outcome) critChance else user.luck + opponent.luck
+        val randomHit = if (outcome) (user.accuracy * accuracyMultiplier).toInt() else dodgeChance
+        val randomCrit = if (outcome) critChance else user.luck + opponent.luck
         repeat(randomHit) { randomizingOutComeHit.add(outcome) }
         repeat(randomCrit) { randomizingOutComeCrit.add(outcome) }
     }
@@ -208,7 +236,7 @@ fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: D
         result = 0
     }
 
-    return result
+    return DMGresult(result, hit, crit)
 }
 
 
@@ -226,4 +254,16 @@ fun giveAGauge(context: Context, key: String) {
     val intent = Intent(key)
     intent.putExtra(Constant.GAUGE_UP,1)
     context.sendBroadcast(intent)
+}
+
+fun getMessageIntent(intent:Intent, damage:DMGresult) {
+    if (damage.hit && damage.crit) {
+        intent.putExtra(Constant.MESSAGE, "CRITICAL!\nHP-${damage.dmg}")
+    } else if (damage.hit && damage.dmg > 0) {
+        intent.putExtra(Constant.MESSAGE, "HP-${damage.dmg}")
+    } else if (damage.hit) {
+        intent.putExtra(Constant.MESSAGE,"Blocked")
+    } else {
+        intent.putExtra(Constant.MESSAGE, "Missed")
+    }
 }

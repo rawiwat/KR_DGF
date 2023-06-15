@@ -47,8 +47,11 @@ class Constant {
         const val LUCK_SET = "luck set"
         const val GAUGE_UP = "gauge up"
         const val GAUGE_DOWN = "gauge down"
+        const val MAX_GAUGE = 10
         const val TURN_CHANGE = "turn change"
         const val GAME_OVER = "Game Over"
-        const val WINNER = "Winner"
+        const val WINNER = "winner"
+        const val STATUS_MESSAGE = "special status"
+        const val MESSAGE = "message"
     }
 }

@@ -7,9 +7,9 @@ import com.example.kamenriderdesiregrandfighter.Constant
 class Gaim: KamenRider(
     Constant.GAIM,
     Constant.BASE_FORM,
-    100,100,10,10,10,12) {
+    105,9,11,10,80,12) {
 
-    private class Jimbra:Move("Jimbra") {
+    private class Jimbra:Move("Jimbra","2 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -30,7 +30,7 @@ class Gaim: KamenRider(
         }
     }
 
-    private class Kadochiki: Move("Kadochiki") {
+    private class Kadochiki: Move("Kadochiki","3 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -51,7 +51,7 @@ class Gaim: KamenRider(
         }
     }
 
-    private class Kiwami: Move("Golden Fruit") {
+    private class Kiwami: Move("Golden Fruit","5 RP") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,

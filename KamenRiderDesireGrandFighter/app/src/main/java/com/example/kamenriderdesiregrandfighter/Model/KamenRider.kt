@@ -3,36 +3,38 @@ package com.example.kamenriderdesiregrandfighter.Model
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import com.example.kamenriderdesiregrandfighter.Constant
 import com.example.kamenriderdesiregrandfighter.damageCalculation
+import com.example.kamenriderdesiregrandfighter.getMessageIntent
 
-open class Move (val name: String) {
+open class Move (val name: String, val cost: String, ) {
 
     open fun function(user:KamenRider, opponent: KamenRider, keyUser: String, keyOpponent: String, context: Context) {
     }
-
 }
 
 fun genericMoveSet(): List<Move> {
 
     val moveSet = mutableListOf<Move>()
 
-    class Attack: Move("Attack") {
+    class Attack: Move("Attack","") {
         override fun function(user: KamenRider, opponent: KamenRider, keyUser: String, keyOpponent: String, context: Context) {
             val intent = Intent(keyOpponent)
             val changeTurn = Intent(Constant.TURN_CHANGE)
             changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
             context.sendBroadcast(changeTurn)
             val damage = damageCalculation(user, opponent, 1.0, 1.0)
-            intent.putExtra(Constant.HEALTH_DOWN, damage)
-            if (damage > 0 && opponent.gauge < 5) {
+            intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+            getMessageIntent(intent, damage)
+            if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                 intent.putExtra(Constant.GAUGE_UP, 1)
             }
             context.sendBroadcast(intent)
         }
     }
 
-    class ChargeGauge: Move("Charge RP") {
+    class ChargeGauge: Move("Charge RP","") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -40,11 +42,10 @@ fun genericMoveSet(): List<Move> {
             keyOpponent: String,
             context: Context
         ) {
-
             val changeTurn = Intent(Constant.TURN_CHANGE)
             changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
             context.sendBroadcast(changeTurn)
-            if (user.gauge < 5) {
+            if (user.gauge < Constant.MAX_GAUGE) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.GAUGE_UP,1)
                 context.sendBroadcast(intent)
@@ -52,7 +53,7 @@ fun genericMoveSet(): List<Move> {
         }
     }
 
-    class ChargeEnergy: Move("Charge SP") {
+    class ChargeEnergy: Move("Charge SP","") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -64,7 +65,7 @@ fun genericMoveSet(): List<Move> {
             changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
             context.sendBroadcast(changeTurn)
             val intent = Intent(keyUser)
-            val missingEnergy = 100 - user.energy
+            val missingEnergy = Constant.MAX_ENERGY - user.energy
             if (missingEnergy <= 10) {
                 intent.putExtra(Constant.ENERGY_UP, missingEnergy)
             } else {
@@ -109,11 +110,13 @@ open class KamenRider (var name: String,
             energy += energyUp
             val energyDown = intent.getIntExtra(Constant.ENERGY_DOWN, 0)
             energy -= energyDown
+            if (energy < 0) energy = 0
             println("Current Energy = $energy")
             val gaugeUp = intent.getIntExtra(Constant.GAUGE_UP,0)
             gauge += gaugeUp
             val gaugeDown = intent.getIntExtra(Constant.GAUGE_DOWN,0)
             gauge -= gaugeDown
+            if (attack < 0) attack = 0
             println("Current Gauge = $gauge")
             val attackSet = intent.getIntExtra(Constant.ATTACK_SET,attack)
             attack = attackSet
@@ -121,6 +124,7 @@ open class KamenRider (var name: String,
             attack += attackUp
             val attackDown = intent.getIntExtra(Constant.ATTACK_DOWN, 0)
             attack -= attackDown
+            if (attack < 0) attack = 0
             println("Current Attack = $attack")
             val defenseSet = intent.getIntExtra(Constant.DEFENSE_SET,defense)
             defense = defenseSet
@@ -128,6 +132,7 @@ open class KamenRider (var name: String,
             defense += defenseUp
             val defenseDown = intent.getIntExtra(Constant.DEFENSE_DOWN, 0)
             defense -= defenseDown
+            if (defense < 0) defense = 0
             println("Current Defense = $defense")
             val speedSet = intent.getIntExtra(Constant.SPEED_SET,speed)
             speed = speedSet
@@ -135,6 +140,7 @@ open class KamenRider (var name: String,
             speed += speedUp
             val speedDown = intent.getIntExtra(Constant.SPEED_DOWN, 0)
             speed -= speedDown
+            if (speed < 0) speed = 0
             println("Current Speed = $speed")
             val accuracySet = intent.getIntExtra(Constant.ACCURACY_SET,accuracy)
             accuracy = accuracySet
@@ -142,6 +148,7 @@ open class KamenRider (var name: String,
             accuracy += accuracyUp
             val accuracyDown = intent.getIntExtra(Constant.ACCURACY_DOWN, 0)
             accuracy -= accuracyDown
+            if (accuracy < 0) accuracy = 0
             println("Current Accuracy = $accuracy")
             val luckSet = intent.getIntExtra(Constant.LUCK_SET,luck)
             luck = luckSet
@@ -149,6 +156,7 @@ open class KamenRider (var name: String,
             luck += luckUp
             val luckDown = intent.getIntExtra(Constant.LUCK_DOWN, 0)
             luck -= luckDown
+            if (luck < 0) luck = 0
             println("Current Luck = $luck")
         }
     }
