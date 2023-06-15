@@ -123,12 +123,14 @@ fun getFormName(kamenRiderName: String, kamenRiderForm: String): String {
 
 fun getRiderFromName(name: String): KamenRider {
     val rider:KamenRider =
-        if (name == Constant.GEATS) Geats()
-        else if (name == Constant.FAIZ) Faiz()
-        else if (name == Constant.RYUKI) Ryuki()
-        else if (name == Constant.KABUTO) Kabuto()
-        else if (name == Constant.OOO) OOO()
-        else Gaim()
+        when (name) {
+            Constant.GEATS -> Geats()
+            Constant.FAIZ -> Faiz()
+            Constant.RYUKI -> Ryuki()
+            Constant.KABUTO -> Kabuto()
+            Constant.OOO -> OOO()
+            else -> Gaim()
+        }
 
     return rider
 }
@@ -143,6 +145,7 @@ fun getProgressBar(max: Int, current: Int): Float {
 }
 
 fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: Double, accuracyMultiplier: Double):Int {
+
     val powerGap = if (user.attack > opponent.defense) {
         user.attack - opponent.defense
     } else if (user.attack < opponent.defense) {
@@ -153,11 +156,16 @@ fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: D
 
     val luckGap = if (user.luck > opponent.luck) {
         user.luck - opponent.luck
+    } else if (user.luck < opponent.luck) {
+        opponent.luck - user.luck
     } else {
-        10
+        0
     }
 
-    val critChance = luckGap / 10
+    val dodgeChance = ((opponent.speed + opponent.luck))
+
+    val critChance = (user.luck + opponent.luck) / 10
+
     val speedGap = if (user.speed > opponent.speed) {
         user.speed - opponent.speed
     } else if (user.speed < opponent.speed) {
@@ -166,21 +174,23 @@ fun damageCalculation(user: KamenRider, opponent: KamenRider, powerMultiplier: D
         0
     }
 
+    if (user.luck >= opponent.luck) dodgeChance + Random.nextInt(luckGap) else dodgeChance - Random.nextInt(luckGap)
+    if (user.speed > opponent.speed) dodgeChance + Random.nextInt(speedGap) else dodgeChance - Random.nextInt(speedGap)
+    if (user.luck >= opponent.luck) critChance + luckGap else critChance - luckGap
     var result = 0
-    val crit:Boolean
     val possibleOutcome = listOf(true,false)
     val randomizingOutComeHit = mutableListOf<Boolean>()
     val randomizingOutComeCrit = mutableListOf<Boolean>()
 
     for (outcome in possibleOutcome) {
-        val randomHit = if(outcome) user.speed + opponent.speed + user.luck + opponent.luck + (user.accuracy * accuracyMultiplier).toInt() else speedGap + luckGap
+        val randomHit = if(outcome) (user.speed + user.luck + user.accuracy) * accuracyMultiplier.toInt() else dodgeChance
         val randomCrit = if(outcome) critChance else user.luck + opponent.luck
         repeat(randomHit) { randomizingOutComeHit.add(outcome) }
         repeat(randomCrit) { randomizingOutComeCrit.add(outcome) }
     }
 
     val hit = randomizingOutComeHit.random()
-    crit = randomizingOutComeCrit.random()
+    val crit = randomizingOutComeCrit.random()
 
     if (hit && crit) {
         result = if (user.attack > opponent.defense) {

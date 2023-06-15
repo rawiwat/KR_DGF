@@ -6,9 +6,9 @@ import com.example.kamenriderdesiregrandfighter.Constant
 
 class Geats: KamenRider(Constant.GEATS,
                         Constant.BASE_FORM,
-                        100,100,10,10,10,1,
+                        100,10,10,10,10,1,
 ) {
-    private class CommandForm:Move("Command Buckle") {
+    private class CommandForm: Move("Command Buckle") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -64,7 +64,8 @@ class Geats: KamenRider(Constant.GEATS,
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
                 intent.putExtra(Constant.GAUGE_DOWN,5)
-                intent.putExtra(Constant.ATTACK_SET,20)
+                intent.putExtra(Constant.ATTACK_SET,25)
+                intent.putExtra(Constant.LUCK_UP,30)
                 context.sendBroadcast(intent)
             }
         }
