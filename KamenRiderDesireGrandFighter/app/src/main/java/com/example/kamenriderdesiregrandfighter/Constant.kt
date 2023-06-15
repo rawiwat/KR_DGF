@@ -53,5 +53,7 @@ class Constant {
         const val WINNER = "winner"
         const val STATUS_MESSAGE = "special status"
         const val MESSAGE = "message"
+        const val IMAGE_ID = "image id"
+        const val SHOW = "show"
     }
 }

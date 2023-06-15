@@ -15,6 +15,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -37,6 +39,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -75,6 +78,7 @@ import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
 import java.util.logging.Handler
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CombatScreen(player1:String, player2: String, gameMode: String, navController: NavController) {
 
@@ -99,6 +103,14 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         mutableStateOf(false)
     }
 
+    var displayMove by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var imageDisplayed by rememberSaveable {
+        mutableStateOf(R.drawable.faiz)
+    }
+
     var winner = ""
     val gameOverReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -112,6 +124,26 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
     }
     context.registerReceiver(gameOverReceiver, IntentFilter(Constant.GAME_OVER) )
 
+    DisposableEffect(displayMove) {
+        val displayReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
+                if (receivedImage != 0) {
+                    imageDisplayed = receivedImage
+                    displayMove = true
+                    android.os.Handler().postDelayed(
+                        {
+                            displayMove = false
+                        },500
+                    )
+                }
+            }
+        }
+        context.registerReceiver(displayReceiver, IntentFilter(Constant.SHOW) )
+        onDispose {
+            context.unregisterReceiver(displayReceiver)
+        }
+    }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row (horizontalArrangement = Arrangement.Center){
@@ -161,6 +193,23 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         }
 
         if(gameOver) GameOverMenu(winner = winner, navController = navController, player1, player2, gameMode)
+
+        }
+
+    AnimatedVisibility(
+        visible = displayMove,
+        enter = scaleIn(animationSpec = tween(durationMillis = 333)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 667))
+    ) {
+        Image(
+            painter = painterResource(id = imageDisplayed),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 100.dp, top = 125.dp)
+                .width(210.dp)
+                .height(297.dp),
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
@@ -220,7 +269,6 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 }
             }
         }
-
         context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
 
         onDispose {
@@ -256,7 +304,6 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 println("Current Gauge Bar= $currentGauge")
             }
         }
-
         context.registerReceiver(broadcastReceiver, IntentFilter(playerKey))
         onDispose {
             context.unregisterReceiver(broadcastReceiver)
@@ -345,9 +392,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                         contentScale = ContentScale.FillBounds
                     )
                 }
-
             }
-
         }
         AnimatedVisibility(
             visible = showPopUp,

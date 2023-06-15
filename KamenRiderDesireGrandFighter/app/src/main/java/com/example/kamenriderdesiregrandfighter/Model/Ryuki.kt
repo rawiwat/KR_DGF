@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.kamenriderdesiregrandfighter.Constant
+import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.compose.Fighter
 import com.example.kamenriderdesiregrandfighter.compose.MovePanel
 import com.example.kamenriderdesiregrandfighter.damageCalculation
@@ -31,6 +32,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.survive)
+                context.sendBroadcast(display)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.GAUGE_DOWN,4)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
@@ -53,6 +57,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.sword_vent)
+                context.sendBroadcast(display)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(Constant.ENERGY_DOWN, 25)
                 context.sendBroadcast(costIntent)
@@ -80,6 +87,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.strike_vent)
+                context.sendBroadcast(display)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(Constant.ENERGY_DOWN, 25)
                 context.sendBroadcast(costIntent)
@@ -107,6 +117,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.advent)
+                context.sendBroadcast(display)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,2)
                 context.sendBroadcast(cost)
@@ -134,6 +147,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
+                context.sendBroadcast(display)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.ENERGY_DOWN,25)
                 intent.putExtra(Constant.DEFENSE_SET,20)
@@ -154,6 +170,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val display = Intent(Constant.SHOW)
+                display.putExtra(Constant.IMAGE_ID, R.drawable.final_vent)
+                context.sendBroadcast(display)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,5)
                 context.sendBroadcast(cost)
