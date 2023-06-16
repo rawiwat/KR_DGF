@@ -9,9 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.kamenriderdesiregrandfighter.Constant
+import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.compose.Fighter
 import com.example.kamenriderdesiregrandfighter.compose.MovePanel
 import com.example.kamenriderdesiregrandfighter.damageCalculation
+import com.example.kamenriderdesiregrandfighter.getFormName
+import com.example.kamenriderdesiregrandfighter.getFormRequire
 import com.example.kamenriderdesiregrandfighter.getMessageIntent
 import com.example.kamenriderdesiregrandfighter.giveAGauge
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
@@ -40,6 +43,7 @@ class Faiz:KamenRider(
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.ENERGY_DOWN,20)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_auto_vajin)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.2)
@@ -67,16 +71,17 @@ class Faiz:KamenRider(
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.ENERGY_DOWN,20)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_phone)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.1,1.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 intent.putExtra(Constant.DEFENSE_DOWN, 2)
-                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
                     giveAGauge(context, keyOpponent)
+                    intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
             }
@@ -91,21 +96,22 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
-            if (user.energy >= 20) {
+            if (user.energy >= 25) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,20)
+                cost.putExtra(Constant.ENERGY_DOWN,25)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_edge)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.1)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
-                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
                     giveAGauge(context, keyOpponent)
+                    intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
             }
@@ -120,21 +126,22 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
-            if (user.energy >= 20) {
+            if (user.energy >= 25) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,20)
+                cost.putExtra(Constant.ENERGY_DOWN,25)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_shot)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.1)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
-                intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
                     giveAGauge(context, keyOpponent)
+                    intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
             }
@@ -173,6 +180,7 @@ class Faiz:KamenRider(
                 intent.putExtra(Constant.FORM_CHANGE, Constant.SUPER_FORM)
                 intent.putExtra(Constant.GAUGE_DOWN, 2)
                 intent.putExtra(Constant.SPEED_SET, 250)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.faiz_axel)
                 context.sendBroadcast(intent)
             }
         }
@@ -192,6 +200,7 @@ class Faiz:KamenRider(
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,4)
+                cost.putExtra(Constant.IMAGE_ID, if (user.form == Constant.BASE_FORM) R.drawable.faiz_pointer else if (user.form == Constant.SUPER_FORM) R.drawable.faiz_pointer_axel else R.drawable.faiz_pointer_blaster)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,4.5,3.0)
@@ -224,10 +233,88 @@ class Faiz:KamenRider(
                 intent.putExtra(Constant.ACCURACY_SET,85)
                 intent.putExtra(Constant.SPEED_SET,60)
                 intent.putExtra(Constant.DEFENSE_SET,15)
+                intent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_blaster)
                 context.sendBroadcast(intent)
             }
         }
     }
+
+    private class Breaker: Move("Photon Breaker", "1 RP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if(user.form == Constant.FINAL_FORM && user.gauge >= 1) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,25)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_breaker)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.5,1.1)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    intent.putExtra(Constant.DEFENSE_DOWN, 3)
+                    giveAGauge(context, keyOpponent)
+                    intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
+                }
+                context.sendBroadcast(intent)
+            } else if (user.form != Constant.FINAL_FORM) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.FAIZ,Constant.FINAL_FORM)))
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    private class Buster: Move("Photon Buster", "1 RP") {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if(user.form == Constant.FINAL_FORM && user.gauge >= 1) {
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val cost = Intent(keyUser)
+                cost.putExtra(Constant.ENERGY_DOWN,25)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_buster)
+                context.sendBroadcast(cost)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.25,1.5)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                getMessageIntent(intent, damage)
+                if (damage.hit) {
+                    intent.putExtra(Constant.DEFENSE_DOWN, 3)
+                    giveAGauge(context, keyOpponent)
+                    intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
+                }
+                context.sendBroadcast(intent)
+            } else if (user.form != Constant.FINAL_FORM) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.FAIZ,Constant.FINAL_FORM)))
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
     init {
         val moveList: MutableList<Move> = mutableListOf(
             FaizPhone(),
@@ -236,7 +323,9 @@ class Faiz:KamenRider(
             AutoVajin(),
             AxelForm(),
             CrimsonSmash(),
-            Blaster()
+            Blaster(),
+            Buster(),
+            Breaker()
         )
         for (move in moveList) { moveSet.add(move) }
     }

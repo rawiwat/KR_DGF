@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.kamenriderdesiregrandfighter.Constant
+import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.compose.Fighter
 import com.example.kamenriderdesiregrandfighter.compose.MovePanel
 import com.example.kamenriderdesiregrandfighter.damageCalculation
@@ -55,6 +56,19 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.ENERGY_DOWN, 40)
                 intent.putExtra(Constant.SPEED_SET, 250)
                 intent.putExtra(Constant.STATUS_MESSAGE,"CLOCK UP!")
+                intent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_clock_up)
+                context.sendBroadcast(intent)
+            } else if (user.form != Constant.BASE_FORM) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
+                context.sendBroadcast(intent)
+            } else if (user.energy < 40) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, "already clock up")
                 context.sendBroadcast(intent)
             }
         }
@@ -78,6 +92,10 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.SPEED_SET,5)
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 context.sendBroadcast(intent)
+            } else if (user.form != Constant.BASE_FORM) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -99,6 +117,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.ATTACK_SET,8)
                 intent.putExtra(Constant.SPEED_SET,50)
                 intent.putExtra(Constant.DEFENSE_SET,10)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_cast_off)
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
@@ -124,6 +143,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
                 intent.putExtra(Constant.GAUGE_DOWN,4)
                 intent.putExtra(Constant.ATTACK_SET,16)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_zector)
                 context.sendBroadcast(intent)
             } else if (user.form != Constant.BASE_FORM) {
                 val intent = Intent(keyUser)
@@ -152,14 +172,19 @@ class Kabuto: KamenRider(
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.ENERGY_DOWN,40)
                 intent.putExtra(Constant.SPEED_SET, 1000)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_clock_up)
                 context.sendBroadcast(intent)
-            } else if (user.form == Constant.FINAL_FORM) {
+            } else if (user.form != Constant.FINAL_FORM) {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO, Constant.FINAL_FORM)))
                 context.sendBroadcast(intent)
-            } else if (user.energy >= 40) {
+            } else if (user.energy < 40) {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.STATUS_MESSAGE, "This ability require Hyper Form")
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, "already hyper clock up")
                 context.sendBroadcast(intent)
             }
         }
@@ -179,6 +204,7 @@ class Kabuto: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(Constant.ENERGY_DOWN, 25)
+                costIntent.putExtra(Constant.IMAGE_ID, if (user.form == Constant.UPGRADE_FORM) R.drawable.kabuto_kunai_gun_masked else R.drawable.kabuto_kunai_gun)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,2.0)
@@ -204,12 +230,13 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
-            if (user.gauge >= 3) {
+            if (user.gauge >= 3 && user.form != Constant.UPGRADE_FORM) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,3)
+                cost.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.kabuto_rider_kick else R.drawable.kabuto_hyper_kick )
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,2.5,1.25)
@@ -219,9 +246,13 @@ class Kabuto: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
-            } else {
+            } else if (user.gauge < 3) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE,"Mask form can't use rider kick")
                 context.sendBroadcast(intent)
             }
         }
@@ -235,24 +266,29 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
-            if (user.gauge >= 4) {
+            if (user.gauge >= 4 && user.form == Constant.FINAL_FORM) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,4)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_perfect_zector)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
-                val damage = damageCalculation(user, opponent,3.5,1.25)
+                val damage = damageCalculation(user, opponent,4.0,5.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.dmg > 0) {
+                if (damage.hit) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
-            } else {
+            } else if (user.gauge < 4) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.FINAL_FORM)))
                 context.sendBroadcast(intent)
             }
         }
