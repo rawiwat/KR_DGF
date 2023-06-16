@@ -55,5 +55,7 @@ class Constant {
         const val MESSAGE = "message"
         const val IMAGE_ID = "image id"
         const val SHOW = "show"
+        const val NOT_ENOUGH_SP = "Not Enough SP"
+        const val NOT_ENOUGH_RP = "Not Enough RP"
     }
 }

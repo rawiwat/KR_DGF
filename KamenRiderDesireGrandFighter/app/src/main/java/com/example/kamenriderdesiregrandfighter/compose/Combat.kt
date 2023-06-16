@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -21,7 +20,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +27,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -39,13 +36,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -76,13 +70,13 @@ import com.example.kamenriderdesiregrandfighter.getRandomRider
 import com.example.kamenriderdesiregrandfighter.getRiderFromName
 import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
-import java.util.logging.Handler
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CombatScreen(player1:String, player2: String, gameMode: String, navController: NavController) {
 
     val context = LocalContext.current
+
     val mutablePlayer1 by rememberSaveable {
         mutableStateOf(player1)
     }
@@ -103,11 +97,19 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         mutableStateOf(false)
     }
 
-    var displayMove by rememberSaveable {
+    var displayMove1 by rememberSaveable {
         mutableStateOf(false)
     }
 
-    var imageDisplayed by rememberSaveable {
+    var imageDisplayed1 by rememberSaveable {
+        mutableStateOf(R.drawable.faiz)
+    }
+
+    var displayMove2 by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var imageDisplayed2 by rememberSaveable {
         mutableStateOf(R.drawable.faiz)
     }
 
@@ -124,26 +126,48 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
     }
     context.registerReceiver(gameOverReceiver, IntentFilter(Constant.GAME_OVER) )
 
-    DisposableEffect(displayMove) {
+    DisposableEffect(displayMove1) {
         val displayReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
                 if (receivedImage != 0) {
-                    imageDisplayed = receivedImage
-                    displayMove = true
+                    imageDisplayed1 = receivedImage
+                    displayMove1 = true
                     android.os.Handler().postDelayed(
                         {
-                            displayMove = false
-                        },500
+                            displayMove1 = false
+                        },1000
                     )
                 }
             }
         }
-        context.registerReceiver(displayReceiver, IntentFilter(Constant.SHOW) )
+        context.registerReceiver(displayReceiver, IntentFilter(player1) )
         onDispose {
             context.unregisterReceiver(displayReceiver)
         }
     }
+
+    DisposableEffect(displayMove2) {
+        val displayReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
+                if (receivedImage != 0) {
+                    imageDisplayed2 = receivedImage
+                    displayMove2 = true
+                    android.os.Handler().postDelayed(
+                        {
+                            displayMove2 = false
+                        },1000
+                    )
+                }
+            }
+        }
+        context.registerReceiver(displayReceiver, IntentFilter(player2) )
+        onDispose {
+            context.unregisterReceiver(displayReceiver)
+        }
+    }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row (horizontalArrangement = Arrangement.Center){
@@ -197,15 +221,31 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         }
 
     AnimatedVisibility(
-        visible = displayMove,
+        visible = displayMove1,
         enter = scaleIn(animationSpec = tween(durationMillis = 333)),
         exit = fadeOut(animationSpec = tween(durationMillis = 667))
     ) {
         Image(
-            painter = painterResource(id = imageDisplayed),
+            painter = painterResource(id = imageDisplayed1),
             contentDescription = null,
             modifier = Modifier
-                .padding(start = 100.dp, top = 125.dp)
+                .padding(start = 150.dp, top = 125.dp)
+                .width(210.dp)
+                .height(297.dp),
+            contentScale = ContentScale.Crop
+        )
+    }
+
+    AnimatedVisibility(
+        visible = displayMove2,
+        enter = scaleIn(animationSpec = tween(durationMillis = 333)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 667))
+    ) {
+        Image(
+            painter = painterResource(id = imageDisplayed2),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 25.dp, top = 125.dp)
                 .width(210.dp)
                 .height(297.dp),
             contentScale = ContentScale.Crop
@@ -219,8 +259,6 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
     val maxHp = kamenRider.health
 
     val maxSp = Constant.MAX_ENERGY
-
-    val maxRp = Constant.MAX_GAUGE
 
     var riderForm by rememberSaveable { mutableStateOf(kamenRider.form) }
 
@@ -362,7 +400,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
 
             StatsBar(max = maxHp, current = currentHealth, text = "HP :", colorId = R.color.red)
             StatsBar(max = maxSp, current = currentSp, text = "SP :", colorId = R.color.teal_200)
-            StatsBar(max = maxRp, current = currentGauge, text = "RP :", colorId = R.color.yellow)
+            StatsBar(max = Constant.MAX_GAUGE, current = currentGauge, text = "RP :", colorId = R.color.yellow)
 
             AnimatedContent(
                 targetState = riderForm,
@@ -394,6 +432,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 }
             }
         }
+
         AnimatedVisibility(
             visible = showPopUp,
             enter = slideIn(tween(100, easing = LinearOutSlowInEasing)) { fullSize ->

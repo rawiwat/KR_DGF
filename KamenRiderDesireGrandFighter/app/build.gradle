@@ -75,4 +75,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
+    //viewmodel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
 }

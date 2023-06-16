@@ -20,6 +20,7 @@ class Ryuki: KamenRider(
     Constant.BASE_FORM,
     110,10,13,10,100,1) {
 
+    //done
     private class Survive:Move("Survive","4 RP") {
         override fun function(
             user: KamenRider,
@@ -32,19 +33,22 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.survive)
-                context.sendBroadcast(display)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.GAUGE_DOWN,4)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
                 intent.putExtra(Constant.ATTACK_SET,20)
                 intent.putExtra(Constant.DEFENSE_SET,20)
+                intent.putExtra(Constant.IMAGE_ID, R.drawable.survive)
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             }
         }
     }
 
+    //done
     private class SwordVent: Move("Sword Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -57,11 +61,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.sword_vent)
-                context.sendBroadcast(display)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(Constant.ENERGY_DOWN, 25)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.sword_vent)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.5)
@@ -71,10 +73,15 @@ class Ryuki: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
 
+    //done
     private class StrikeVent: Move("Strike Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -87,11 +94,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.strike_vent)
-                context.sendBroadcast(display)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(Constant.ENERGY_DOWN, 25)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.strike_vent)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.5,0.5)
@@ -101,10 +106,15 @@ class Ryuki: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
 
+    //done
     private class Advent: Move("Advent","2 RP") {
         override fun function(
             user: KamenRider,
@@ -117,24 +127,27 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.advent)
-                context.sendBroadcast(display)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,2)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.advent)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,2.0,10.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.hit) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             }
         }
     }
 
+    //done
     private class GuardVent: Move("Guard Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -147,17 +160,16 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
-                context.sendBroadcast(display)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.ENERGY_DOWN,25)
                 intent.putExtra(Constant.DEFENSE_SET,20)
+                intent.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
                 context.sendBroadcast(intent)
             }
         }
     }
 
+    //done
     private class FinalVent: Move("Final Vent","5 RP") {
         override fun function(
             user: KamenRider,
@@ -170,11 +182,9 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val display = Intent(Constant.SHOW)
-                display.putExtra(Constant.IMAGE_ID, R.drawable.final_vent)
-                context.sendBroadcast(display)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,5)
+                cost.putExtra(Constant.IMAGE_ID, R.drawable.final_vent)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,6.0,10.0)
