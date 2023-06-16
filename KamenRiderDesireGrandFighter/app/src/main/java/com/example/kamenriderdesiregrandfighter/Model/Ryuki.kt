@@ -45,7 +45,6 @@ class Ryuki: KamenRider(
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.survive)
                 context.sendBroadcast(intent)
                 survive_sound.start()
-                survive_sound.release()
             } else if (user.gauge < 4) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
@@ -82,10 +81,8 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
                 if (user.form == Constant.BASE_FORM) {
                     swordVentSound.start()
-                    swordVentSound.release()
                 } else {
                     swordVentSurvive.start()
-                    swordVentSound.release()
                 }
             } else {
                 val intent = Intent(keyUser)
@@ -123,10 +120,8 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
                 if (user.form == Constant.BASE_FORM) {
                     strikeVentSound.start()
-                    strikeVentSound.release()
                 } else {
                     strikeVentSurviveSound.start()
-                    strikeVentSurviveSound.release()
                 }
             } else {
                 val intent = Intent(keyUser)
@@ -165,10 +160,8 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
                 if (user.form == Constant.BASE_FORM) {
                     advent.start()
-                    advent.release()
                 } else {
                     adventSurvive.start()
-                    adventSurvive.release()
                 }
             } else {
                 val intent = Intent(keyUser)
@@ -186,6 +179,7 @@ class Ryuki: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val guardVent = MediaPlayer.create(context,R.raw.ryuki_guard_vent)
             if (user.energy >= 25) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -195,6 +189,7 @@ class Ryuki: KamenRider(
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
                 context.sendBroadcast(intent)
+                guardVent.start()
             } else {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
@@ -211,6 +206,8 @@ class Ryuki: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val finalVent = MediaPlayer.create(context,R.raw.ryuki_final_vent)
+            val finalVentSurvive = MediaPlayer.create(context,R.raw.ryuki_final_vent_survive)
             if (user.gauge >= 5) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -227,6 +224,11 @@ class Ryuki: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+                if (user.form == Constant.BASE_FORM) {
+                    finalVent.start()
+                } else {
+                    finalVentSurvive.start()
+                }
             } else {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
@@ -234,6 +236,7 @@ class Ryuki: KamenRider(
             }
         }
     }
+
     init {
         val moveList: MutableList<Move> = mutableListOf(
             SwordVent(),

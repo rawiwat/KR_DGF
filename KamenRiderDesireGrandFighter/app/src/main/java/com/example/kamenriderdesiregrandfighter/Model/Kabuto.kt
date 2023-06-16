@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.MediaPlayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +37,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val sound = MediaPlayer.create(context,R.raw.clock_up)
             if(user.form == Constant.BASE_FORM && user.energy >= 40 && user.speed <= 50) {
                 var duration = 10
                 val cooldownReceiver = object : BroadcastReceiver() {
@@ -61,6 +64,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.STATUS_MESSAGE,"CLOCK UP!")
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_clock_up)
                 context.sendBroadcast(intent)
+                sound.start()
             } else if (user.form != Constant.BASE_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
@@ -83,7 +87,9 @@ class Kabuto: KamenRider(
             opponent: KamenRider,
             keyUser: String,
             keyOpponent: String,
-            context: Context) {
+            context: Context)
+        {
+            val putOn = MediaPlayer.create(context, R.raw.put_on)
             if (user.form == Constant.BASE_FORM && user.energy >= 20) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -95,6 +101,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.SPEED_SET,5)
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 context.sendBroadcast(intent)
+                putOn.start()
             } else if (user.form != Constant.BASE_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
@@ -111,6 +118,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val castOff = MediaPlayer.create(context,R.raw.cast_off_kabuto)
             if (user.form == Constant.UPGRADE_FORM) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -122,6 +130,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.DEFENSE_SET,10)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_cast_off)
                 context.sendBroadcast(intent)
+                castOff.start()
             } else {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.UPGRADE_FORM)))
@@ -138,6 +147,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val hyperForm = MediaPlayer.create(context, R.raw.hyper_cast_off)
             if (user.form == Constant.BASE_FORM && user.gauge >= 4) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -148,6 +158,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.ATTACK_SET,16)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_zector)
                 context.sendBroadcast(intent)
+                hyperForm.start()
             } else if (user.form != Constant.BASE_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
@@ -168,6 +179,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val hyperClockUp = MediaPlayer.create(context, R.raw.hyper_clock_up)
             if(user.form == Constant.FINAL_FORM && user.energy >= 40 && user.speed <= 50) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -177,6 +189,7 @@ class Kabuto: KamenRider(
                 intent.putExtra(Constant.SPEED_SET, 1000)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_clock_up)
                 context.sendBroadcast(intent)
+                hyperClockUp.start()
             } else if (user.form != Constant.FINAL_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO, Constant.FINAL_FORM)))
@@ -233,6 +246,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val riderKick = MediaPlayer.create(context, R.raw.kabuto_rider_kick)
             if (user.gauge >= 3 && user.form != Constant.UPGRADE_FORM) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -249,6 +263,7 @@ class Kabuto: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+                riderKick.start()
             } else if (user.gauge < 3) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
@@ -269,6 +284,7 @@ class Kabuto: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val allCombine = MediaPlayer.create(context, R.raw.kamen_rider_combine)
             if (user.gauge >= 4 && user.form == Constant.FINAL_FORM) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -285,6 +301,7 @@ class Kabuto: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+                allCombine.start()
             } else if (user.gauge < 4) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)

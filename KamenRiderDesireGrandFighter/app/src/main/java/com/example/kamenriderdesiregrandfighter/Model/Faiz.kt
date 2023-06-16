@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.MediaPlayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,10 @@ class Faiz:KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -88,6 +93,10 @@ class Faiz:KamenRider(
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -100,6 +109,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val exceedCharge = MediaPlayer.create(context,R.raw.exceed_charge)
             if (user.energy >= 25) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -118,6 +128,11 @@ class Faiz:KamenRider(
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
+                exceedCharge.start()
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -130,6 +145,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val exceedCharge = MediaPlayer.create(context,R.raw.exceed_charge)
             if (user.energy >= 25) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -148,6 +164,11 @@ class Faiz:KamenRider(
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
                 context.sendBroadcast(intent)
+                exceedCharge.start()
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -160,6 +181,8 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val startUp = MediaPlayer.create(context,R.raw.start_up)
+            val timeOutSound = MediaPlayer.create(context,R.raw.time_out)
             if (user.form == Constant.BASE_FORM && user.gauge >= 2) {
                 var duration = 6
                 val cooldownReceiver = object : BroadcastReceiver() {
@@ -172,6 +195,7 @@ class Faiz:KamenRider(
                                 timeOut.putExtra(Constant.SPEED_SET,53)
                                 timeOut.putExtra(Constant.FORM_CHANGE,Constant.BASE_FORM)
                                 context?.sendBroadcast(timeOut)
+                                timeOutSound.start()
                             }
                         }
                     }
@@ -186,6 +210,15 @@ class Faiz:KamenRider(
                 intent.putExtra(Constant.SPEED_SET, 250)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.faiz_axel)
                 context.sendBroadcast(intent)
+                startUp.start()
+            } else if (user.form != Constant.BASE_FORM) {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.BASE_FORM)))
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -198,6 +231,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val exceedCharge = MediaPlayer.create(context,R.raw.exceed_charge)
             if (user.gauge >= 4) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -214,6 +248,11 @@ class Faiz:KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+                exceedCharge.start()
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -226,6 +265,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val awaken = MediaPlayer.create(context, R.raw.awakening)
             if (user.form == Constant.BASE_FORM && user.gauge >= 4) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -239,6 +279,11 @@ class Faiz:KamenRider(
                 intent.putExtra(Constant.DEFENSE_SET,15)
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_blaster)
                 context.sendBroadcast(intent)
+                awaken.start()
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
             }
         }
     }
@@ -251,6 +296,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val burst = MediaPlayer.create(context,R.raw.burst_mode)
             if(user.form == Constant.FINAL_FORM && user.gauge >= 1) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -269,6 +315,7 @@ class Faiz:KamenRider(
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
                 }
                 context.sendBroadcast(intent)
+                burst.start()
             } else if (user.form != Constant.FINAL_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.FAIZ,Constant.FINAL_FORM)))
@@ -289,6 +336,7 @@ class Faiz:KamenRider(
             keyOpponent: String,
             context: Context
         ) {
+            val burst = MediaPlayer.create(context,R.raw.burst_mode)
             if(user.form == Constant.FINAL_FORM && user.gauge >= 1) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
@@ -307,6 +355,7 @@ class Faiz:KamenRider(
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
                 }
                 context.sendBroadcast(intent)
+                burst.start()
             } else if (user.form != Constant.FINAL_FORM) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.FAIZ,Constant.FINAL_FORM)))
