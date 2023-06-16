@@ -145,7 +145,6 @@ fun getRiderFromName(name: String): KamenRider {
             Constant.OOO -> OOO()
             else -> Gaim()
         }
-
     return rider
 }
 
@@ -266,4 +265,8 @@ fun getMessageIntent(intent:Intent, damage:DMGresult) {
     } else {
         intent.putExtra(Constant.MESSAGE, "Missed")
     }
+}
+
+fun getFormRequire(form: String): String {
+    return "this ability require $form Form"
 }

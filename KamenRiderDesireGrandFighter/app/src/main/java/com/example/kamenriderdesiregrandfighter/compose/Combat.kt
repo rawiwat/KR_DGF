@@ -70,6 +70,12 @@ import com.example.kamenriderdesiregrandfighter.getRandomRider
 import com.example.kamenriderdesiregrandfighter.getRiderFromName
 import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -97,22 +103,6 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         mutableStateOf(false)
     }
 
-    var displayMove1 by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var imageDisplayed1 by rememberSaveable {
-        mutableStateOf(R.drawable.faiz)
-    }
-
-    var displayMove2 by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var imageDisplayed2 by rememberSaveable {
-        mutableStateOf(R.drawable.faiz)
-    }
-
     var winner = ""
     val gameOverReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -125,48 +115,6 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         }
     }
     context.registerReceiver(gameOverReceiver, IntentFilter(Constant.GAME_OVER) )
-
-    DisposableEffect(displayMove1) {
-        val displayReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
-                if (receivedImage != 0) {
-                    imageDisplayed1 = receivedImage
-                    displayMove1 = true
-                    android.os.Handler().postDelayed(
-                        {
-                            displayMove1 = false
-                        },1000
-                    )
-                }
-            }
-        }
-        context.registerReceiver(displayReceiver, IntentFilter(player1) )
-        onDispose {
-            context.unregisterReceiver(displayReceiver)
-        }
-    }
-
-    DisposableEffect(displayMove2) {
-        val displayReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
-                if (receivedImage != 0) {
-                    imageDisplayed2 = receivedImage
-                    displayMove2 = true
-                    android.os.Handler().postDelayed(
-                        {
-                            displayMove2 = false
-                        },1000
-                    )
-                }
-            }
-        }
-        context.registerReceiver(displayReceiver, IntentFilter(player2) )
-        onDispose {
-            context.unregisterReceiver(displayReceiver)
-        }
-    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -217,40 +165,7 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
         }
 
         if(gameOver) GameOverMenu(winner = winner, navController = navController, player1, player2, gameMode)
-
         }
-
-    AnimatedVisibility(
-        visible = displayMove1,
-        enter = scaleIn(animationSpec = tween(durationMillis = 333)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 667))
-    ) {
-        Image(
-            painter = painterResource(id = imageDisplayed1),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 150.dp, top = 125.dp)
-                .width(210.dp)
-                .height(297.dp),
-            contentScale = ContentScale.Crop
-        )
-    }
-
-    AnimatedVisibility(
-        visible = displayMove2,
-        enter = scaleIn(animationSpec = tween(durationMillis = 333)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 667))
-    ) {
-        Image(
-            painter = painterResource(id = imageDisplayed2),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 25.dp, top = 125.dp)
-                .width(210.dp)
-                .height(297.dp),
-            contentScale = ContentScale.Crop
-        )
-    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -275,6 +190,14 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
     var popUpMessage by rememberSaveable { mutableStateOf("Emotional\nDamage") }
 
     var popUpMessage2 by rememberSaveable { mutableStateOf("Emotional\nDamage") }
+
+    var displayMove by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var imageDisplayed by rememberSaveable {
+        mutableStateOf(R.drawable.faiz)
+    }
 
     DisposableEffect(currentHealth) {
         val broadcastReceiver = object : BroadcastReceiver() {
@@ -355,11 +278,12 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 if (message != null) {
                     popUpMessage = message
                     showPopUp = true
-                    android.os.Handler().postDelayed(
-                        {
-                            showPopUp = false
-                        },1000
-                    )
+                    CoroutineScope(Dispatchers.Main).launch {
+                        withContext(Dispatchers.IO) {
+                            delay(1000)
+                        }
+                        showPopUp = false
+                    }
                 }
             }
         }
@@ -377,11 +301,12 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 if (message != null) {
                     popUpMessage2 = message
                     showPopUp2 = true
-                    android.os.Handler().postDelayed(
-                        {
-                            showPopUp2 = false
-                        },1000
-                    )
+                    CoroutineScope(Dispatchers.Main).launch {
+                        withContext(Dispatchers.IO) {
+                            delay(1000)
+                        }
+                        showPopUp2 = false
+                    }
                 }
             }
         }
@@ -389,6 +314,30 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
         context.registerReceiver(broadcastReceiver, IntentFilter(playerKey) )
         onDispose {
             context.unregisterReceiver(broadcastReceiver)
+        }
+    }
+
+    DisposableEffect(displayMove) {
+        val displayReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val receivedImage = intent.getIntExtra(Constant.IMAGE_ID,0)
+                if (receivedImage != 0) {
+                    imageDisplayed = receivedImage
+                    displayMove = true
+                    CoroutineScope(Dispatchers.Main).launch {
+                        withContext(Dispatchers.IO) {
+                        delay(1000)
+                        }
+                        displayMove = false
+                    }
+
+                }
+            }
+        }
+
+        context.registerReceiver(displayReceiver, IntentFilter(playerKey) )
+        onDispose {
+            context.unregisterReceiver(displayReceiver)
         }
     }
 
@@ -438,7 +387,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
             enter = slideIn(tween(100, easing = LinearOutSlowInEasing)) { fullSize ->
                 IntOffset(fullSize.width / 4, 100)
             },
-            exit = fadeOut()) {
+            exit = fadeOut(animationSpec = tween(durationMillis = 1500))) {
             Text(
                 text = popUpMessage,
                 modifier = Modifier.padding(
@@ -462,7 +411,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
             enter = slideIn(tween(100, easing = LinearOutSlowInEasing)) { fullSize ->
                 IntOffset(fullSize.width / 4, 100)
             },
-            exit = fadeOut()) {
+            exit = fadeOut(animationSpec = tween(durationMillis = 1500))) {
             Text(
                 text = popUpMessage2,
                 modifier = Modifier.padding(
@@ -478,6 +427,22 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                         blurRadius = 6f
                     )
                 )
+            )
+        }
+
+        AnimatedVisibility(
+            visible = displayMove,
+            enter = scaleIn(animationSpec = tween(durationMillis = 500)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 1250))
+        ) {
+            Image(
+                painter = painterResource(id = imageDisplayed),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 15.dp, top = 125.dp)
+                    .width(150.dp)
+                    .height(212.dp),
+                contentScale = ContentScale.Crop
             )
         }
     }

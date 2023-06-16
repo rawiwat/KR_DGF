@@ -20,7 +20,6 @@ class Ryuki: KamenRider(
     Constant.BASE_FORM,
     110,10,13,10,100,1) {
 
-    //done
     private class Survive:Move("Survive","4 RP") {
         override fun function(
             user: KamenRider,
@@ -42,13 +41,12 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_RP)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    //done
     private class SwordVent: Move("Sword Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -75,13 +73,12 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_SP)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    //done
     private class StrikeVent: Move("Strike Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -108,7 +105,7 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_SP)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
                 context.sendBroadcast(intent)
             }
         }
@@ -129,7 +126,7 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val cost = Intent(keyUser)
                 cost.putExtra(Constant.GAUGE_DOWN,2)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.advent)
+                cost.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.advent else R.drawable.advent_survive)
                 context.sendBroadcast(cost)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,2.0,10.0)
@@ -141,13 +138,12 @@ class Ryuki: KamenRider(
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.MESSAGE, Constant.NOT_ENOUGH_RP)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    //done
     private class GuardVent: Move("Guard Vent","25 SP") {
         override fun function(
             user: KamenRider,
@@ -165,11 +161,14 @@ class Ryuki: KamenRider(
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
             }
         }
     }
 
-    //done
     private class FinalVent: Move("Final Vent","5 RP") {
         override fun function(
             user: KamenRider,
@@ -194,10 +193,13 @@ class Ryuki: KamenRider(
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
+                context.sendBroadcast(intent)
             }
         }
     }
-
     init {
         val moveList: MutableList<Move> = mutableListOf(
             SwordVent(),
