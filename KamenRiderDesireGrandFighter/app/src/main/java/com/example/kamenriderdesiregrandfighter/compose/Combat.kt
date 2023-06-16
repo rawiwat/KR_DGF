@@ -19,6 +19,7 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,8 +35,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -114,19 +118,31 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
             }
         }
     }
+
     context.registerReceiver(gameOverReceiver, IntentFilter(Constant.GAME_OVER) )
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Row (horizontalArrangement = Arrangement.Center){
-                Fighter(rider1, nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1", Constant.PLAYER_ONE, Constant.PLAYER_TWO, context)
-                Spacer(modifier = Modifier.width(10.dp))
-                Fighter(rider2, if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2", Constant.PLAYER_TWO, Constant.PLAYER_ONE, context)
-            }
-
             var currentTurn by rememberSaveable {
                 mutableStateOf(getRandomPlayer())
             }
+
+            Row (horizontalArrangement = Arrangement.Center){
+                Fighter(
+                    rider1,
+                    nameTag = if (gameMode == Constant.SINGLE_PLAYER) "Player" else "Player 1",
+                    Constant.PLAYER_ONE, Constant.PLAYER_TWO, context,
+                    if (currentTurn == Constant.PLAYER_ONE) BorderStroke(3.dp, Color.Red) else BorderStroke(3.dp, MaterialTheme.colorScheme.background))
+                Spacer(modifier = Modifier.width(10.dp))
+                Fighter(
+                    rider2,
+                    if (gameMode == Constant.SINGLE_PLAYER) "CPU" else "Player 2",
+                    Constant.PLAYER_TWO, Constant.PLAYER_ONE, context,
+                    if (currentTurn == Constant.PLAYER_TWO) BorderStroke(3.dp, Color.Blue) else BorderStroke(3.dp, MaterialTheme.colorScheme.background)
+                )
+            }
+
+
 
             DisposableEffect(currentTurn) {
                 val turnBroadcastReceiver = object : BroadcastReceiver() {
@@ -170,7 +186,7 @@ fun CombatScreen(player1:String, player2: String, gameMode: String, navControlle
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponentKey: String, context: Context) {
+fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponentKey: String, context: Context, border: BorderStroke) {
     val maxHp = kamenRider.health
 
     val maxSp = Constant.MAX_ENERGY
@@ -211,6 +227,9 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                     gameState.putExtra(Constant.GAME_OVER, true)
                     gameState.putExtra(Constant.WINNER, opponentKey)
                     context.sendBroadcast(gameState)
+                    val death = Intent(playerKey)
+                    death.putExtra(Constant.IMAGE_ID,R.drawable.death_explosion)
+                    context.sendBroadcast(death)
                 }
                 println("Current Health = $currentHealth")
             }
@@ -341,8 +360,13 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
         }
     }
 
-    Surface {
-        Column {
+    Surface (
+        modifier = Modifier
+            .width(175.dp)
+            .height(450.dp),
+        border = border
+    ) {
+        Column(modifier = Modifier.padding(3.dp)) {
             Text(text = nameTag)
             Text(text = "Kamen Rider ${kamenRider.name}")
             Text(text = "${getFormName(kamenRider.name, riderForm)} form")
@@ -426,7 +450,8 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                         offset = Offset(1f,1f),
                         blurRadius = 6f
                     )
-                )
+                ),
+                overflow = TextOverflow.Clip
             )
         }
 
@@ -549,7 +574,7 @@ fun GameOverPreview() {
 @Composable
 fun FighterPreview() {
     KamenRiderDesireGrandFighterTheme {
-        Fighter(Geats(), nameTag = "Player 1", "", "",LocalContext.current)
+        Fighter(Geats(), nameTag = "Player 1", "", "",LocalContext.current, BorderStroke(3.dp, Color.Red))
     }
 }
 

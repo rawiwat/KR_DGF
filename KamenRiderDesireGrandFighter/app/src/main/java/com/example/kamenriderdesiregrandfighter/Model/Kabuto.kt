@@ -4,10 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.kamenriderdesiregrandfighter.Constant
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.compose.Fighter
@@ -314,7 +317,8 @@ class Kabuto: KamenRider(
 fun KabutoPreview() {
     KamenRiderDesireGrandFighterTheme {
         Column {
-            Fighter(kamenRider = Kabuto(), nameTag = Constant.PLAYER_ONE, playerKey = "", opponentKey = "", context = LocalContext.current)
+            Fighter(kamenRider = Kabuto(), nameTag = Constant.PLAYER_ONE, playerKey = "", opponentKey = "", context = LocalContext.current,
+                BorderStroke(3.dp, Color.Red))
             MovePanel(user = Kabuto(), opponent = Kabuto(), keyUser = "", keyOpponent = "", context = LocalContext.current)
         }
     }
