@@ -67,6 +67,7 @@ class Gaim: KamenRider(
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
                 intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,20)
+                intent.putExtra(Constant.LUCK_UP,20)
                 context.sendBroadcast(intent)
             }
         }

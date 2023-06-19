@@ -4,9 +4,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.MediaPlayer
 import com.example.kamenriderdesiregrandfighter.Constant
+import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.damageCalculation
+import com.example.kamenriderdesiregrandfighter.getFormName
+import com.example.kamenriderdesiregrandfighter.getFormRequire
 import com.example.kamenriderdesiregrandfighter.getMessageIntent
+import com.example.kamenriderdesiregrandfighter.getRiderImage
+import com.example.kamenriderdesiregrandfighter.giveAGauge
 
 open class Move (val name: String, val cost: Int, val costType: String) {
 
@@ -20,17 +26,22 @@ fun genericMoveSet(): List<Move> {
 
     class Attack: Move("Attack",0, "") {
         override fun function(user: KamenRider, opponent: KamenRider, keyUser: String, keyOpponent: String, context: Context) {
-            val intent = Intent(keyOpponent)
+            val attackSound = MediaPlayer.create(context,R.raw.normal_attack)
+            attackSound.start()
             val changeTurn = Intent(Constant.TURN_CHANGE)
             changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
             context.sendBroadcast(changeTurn)
-            val damage = damageCalculation(user, opponent, 1.0, 1.0)
-            intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
-            getMessageIntent(intent, damage)
-            if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
-                intent.putExtra(Constant.GAUGE_UP, 1)
-            }
+            val intent = Intent(keyUser)
+            intent.putExtra(Constant.IMAGE_ID, getRiderImage(user.name,user.form))
             context.sendBroadcast(intent)
+            val attack = Intent(keyOpponent)
+            val damage = damageCalculation(user, opponent, 1.0, 1.0)
+            attack.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+            getMessageIntent(attack, damage)
+            if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                attack.putExtra(Constant.GAUGE_UP, 1)
+            }
+            context.sendBroadcast(attack)
         }
     }
 
@@ -42,12 +53,19 @@ fun genericMoveSet(): List<Move> {
             keyOpponent: String,
             context: Context
         ) {
-            val changeTurn = Intent(Constant.TURN_CHANGE)
-            changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
-            context.sendBroadcast(changeTurn)
             if (user.gauge < Constant.MAX_GAUGE) {
+                val chargeSound = MediaPlayer.create(context,R.raw.charge_sound)
+                chargeSound.start()
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.GAUGE_UP,1)
+                intent.putExtra(Constant.IMAGE_ID, getRiderImage(user.name,user.form))
+                context.sendBroadcast(intent)
+                giveAGauge(context, keyUser)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, "RP Full")
                 context.sendBroadcast(intent)
             }
         }
@@ -61,17 +79,21 @@ fun genericMoveSet(): List<Move> {
             keyOpponent: String,
             context: Context
         ) {
-            val changeTurn = Intent(Constant.TURN_CHANGE)
-            changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
-            context.sendBroadcast(changeTurn)
-            val intent = Intent(keyUser)
-            val missingEnergy = Constant.MAX_ENERGY - user.energy
-            if (missingEnergy <= 10) {
-                intent.putExtra(Constant.ENERGY_UP, missingEnergy)
+            if (user.energy < Constant.MAX_ENERGY) {
+                val chargeSound = MediaPlayer.create(context,R.raw.charge_sound)
+                chargeSound.start()
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.IMAGE_ID, getRiderImage(user.name,user.form))
+                intent.putExtra(Constant.ENERGY_UP,10)
+                context.sendBroadcast(intent)
             } else {
-                intent.putExtra(Constant.ENERGY_UP, 10)
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, "SP Full")
+                context.sendBroadcast(intent)
             }
-            context.sendBroadcast(intent)
         }
     }
 
@@ -111,12 +133,14 @@ open class KamenRider (var name: String,
             val energyDown = intent.getIntExtra(Constant.ENERGY_DOWN, 0)
             energy -= energyDown
             if (energy < 0) energy = 0
+            if (energy > Constant.MAX_ENERGY) energy = Constant.MAX_ENERGY
             println("Current Energy = $energy")
             val gaugeUp = intent.getIntExtra(Constant.GAUGE_UP,0)
             gauge += gaugeUp
             val gaugeDown = intent.getIntExtra(Constant.GAUGE_DOWN,0)
             gauge -= gaugeDown
-            if (attack < 0) attack = 0
+            if (gauge < 0) gauge = 0
+            if (gauge > Constant.MAX_GAUGE) gauge = Constant.MAX_GAUGE
             println("Current Gauge = $gauge")
             val attackSet = intent.getIntExtra(Constant.ATTACK_SET,attack)
             attack = attackSet

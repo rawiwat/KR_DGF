@@ -111,7 +111,7 @@ class Ryuki: KamenRider(
                 costIntent.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.strike_vent else R.drawable.strike_vent_survive )
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
-                val damage = damageCalculation(user, opponent,1.5,0.5)
+                val damage = damageCalculation(user, opponent,1.4,0.75)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
                 if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {

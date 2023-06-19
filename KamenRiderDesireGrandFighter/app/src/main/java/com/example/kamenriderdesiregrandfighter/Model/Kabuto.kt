@@ -185,7 +185,7 @@ class Kabuto: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(costType,cost)
-                intent.putExtra(Constant.SPEED_SET, 1000)
+                intent.putExtra(Constant.SPEED_SET, 500)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_clock_up)
                 context.sendBroadcast(intent)
                 hyperClockUp.start()
@@ -255,7 +255,7 @@ class Kabuto: KamenRider(
                 costIntent.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.kabuto_rider_kick else R.drawable.kabuto_hyper_kick )
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
-                val damage = damageCalculation(user, opponent,2.5,1.25)
+                val damage = damageCalculation(user, opponent,2.5,1.5)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
                 if (damage.dmg > 0) {
