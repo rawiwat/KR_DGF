@@ -9,7 +9,10 @@ class Gaim: KamenRider(
     Constant.BASE_FORM,
     105,9,11,10,80,12) {
 
-    private class Jimbra:Move("Jimbra",2, Constant.GAUGE_DOWN) {
+    private class Creation: Move("Creation", 2, Constant.GAUGE_DOWN) {
+
+    }
+    private class Jimbra: Move("Jimbra",2, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -24,7 +27,7 @@ class Gaim: KamenRider(
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
                 intent.putExtra(costType,cost)
-                intent.putExtra(Constant.ATTACK_UP,10)
+                intent.putExtra(Constant.ATTACK_SET,14)
                 context.sendBroadcast(intent)
             }
         }
@@ -45,7 +48,7 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.SUPER_FORM)
                 intent.putExtra(costType,cost)
-                intent.putExtra(Constant.ATTACK_SET,15)
+                intent.putExtra(Constant.ATTACK_SET,18)
                 context.sendBroadcast(intent)
             }
         }

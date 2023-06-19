@@ -214,6 +214,8 @@ class Kabuto: KamenRider(
             context: Context
         ) {
             if (user.energy >= 25) {
+                val attackSound = MediaPlayer.create(context,R.raw.normal_attack)
+                attackSound.start()
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
