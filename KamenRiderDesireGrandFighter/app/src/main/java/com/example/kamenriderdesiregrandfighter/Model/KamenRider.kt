@@ -8,7 +8,7 @@ import com.example.kamenriderdesiregrandfighter.Constant
 import com.example.kamenriderdesiregrandfighter.damageCalculation
 import com.example.kamenriderdesiregrandfighter.getMessageIntent
 
-open class Move (val name: String, val cost: String, ) {
+open class Move (val name: String, val cost: Int, val costType: String) {
 
     open fun function(user:KamenRider, opponent: KamenRider, keyUser: String, keyOpponent: String, context: Context) {
     }
@@ -18,7 +18,7 @@ fun genericMoveSet(): List<Move> {
 
     val moveSet = mutableListOf<Move>()
 
-    class Attack: Move("Attack","") {
+    class Attack: Move("Attack",0, "") {
         override fun function(user: KamenRider, opponent: KamenRider, keyUser: String, keyOpponent: String, context: Context) {
             val intent = Intent(keyOpponent)
             val changeTurn = Intent(Constant.TURN_CHANGE)
@@ -34,7 +34,7 @@ fun genericMoveSet(): List<Move> {
         }
     }
 
-    class ChargeGauge: Move("Charge RP","") {
+    class ChargeGauge: Move("Charge RP",0,"") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -53,7 +53,7 @@ fun genericMoveSet(): List<Move> {
         }
     }
 
-    class ChargeEnergy: Move("Charge SP","") {
+    class ChargeEnergy: Move("Charge SP",0,"") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,

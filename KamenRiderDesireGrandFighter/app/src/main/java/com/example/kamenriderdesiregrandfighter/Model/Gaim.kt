@@ -9,7 +9,7 @@ class Gaim: KamenRider(
     Constant.BASE_FORM,
     105,9,11,10,80,12) {
 
-    private class Jimbra:Move("Jimbra","2 RP") {
+    private class Jimbra:Move("Jimbra",2, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -23,14 +23,14 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,2)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_UP,10)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    private class Kadochiki: Move("Kadochiki","3 RP") {
+    private class Kadochiki: Move("Kadochiki",3, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -44,14 +44,14 @@ class Gaim: KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.SUPER_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,3)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,15)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    private class Kiwami: Move("Golden Fruit","5 RP") {
+    private class Kiwami: Move("Golden Fruit",5, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -65,7 +65,7 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,5)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,20)
                 context.sendBroadcast(intent)
             }

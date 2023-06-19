@@ -34,7 +34,7 @@ class Faiz:KamenRider(
     75,
     8,
 ) {
-    class AutoVajin: Move("AutoVajin","20 SP") {
+    class AutoVajin: Move("AutoVajin",20,Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -46,10 +46,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,20)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_auto_vajin)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_auto_vajin)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.2)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -66,7 +66,7 @@ class Faiz:KamenRider(
         }
     }
 
-    class FaizPhone: Move("Faiz Phone","20 SP") {
+    class FaizPhone: Move("Faiz Phone",20 ,Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -78,10 +78,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,20)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_phone)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_phone)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.1,1.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -101,7 +101,7 @@ class Faiz:KamenRider(
         }
     }
 
-    class FaizEdge: Move("Faiz Edge","25 SP") {
+    class FaizEdge: Move("Faiz Edge",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -114,10 +114,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,25)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_edge)
-                context.sendBroadcast(cost)
+                val userIntent = Intent(keyUser)
+                userIntent.putExtra(costType,cost)
+                userIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_edge)
+                context.sendBroadcast(userIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.1)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -137,7 +137,7 @@ class Faiz:KamenRider(
         }
     }
 
-    class FaizShot: Move("Faiz Shot","25 SP") {
+    class FaizShot: Move("Faiz Shot",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -150,10 +150,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,25)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_shot)
-                context.sendBroadcast(cost)
+                val userIntent = Intent(keyUser)
+                userIntent.putExtra(costType, cost)
+                userIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_shot)
+                context.sendBroadcast(userIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.1)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -173,7 +173,7 @@ class Faiz:KamenRider(
         }
     }
 
-    class AxelForm: Move("Axelwatch","2 RP",) {
+    class AxelForm: Move("Axelwatch",2, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -206,7 +206,7 @@ class Faiz:KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 intent.putExtra(Constant.FORM_CHANGE, Constant.SUPER_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN, 2)
+                intent.putExtra(costType, cost)
                 intent.putExtra(Constant.SPEED_SET, 250)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.faiz_axel)
                 context.sendBroadcast(intent)
@@ -223,7 +223,7 @@ class Faiz:KamenRider(
         }
     }
 
-    class CrimsonSmash: Move("Exceed Charge","4 RP") {
+    class CrimsonSmash: Move("Exceed Charge",4,Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -236,10 +236,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.GAUGE_DOWN,4)
-                cost.putExtra(Constant.IMAGE_ID, if (user.form == Constant.BASE_FORM) R.drawable.faiz_pointer else if (user.form == Constant.SUPER_FORM) R.drawable.faiz_pointer_axel else R.drawable.faiz_pointer_blaster)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, if (user.form == Constant.BASE_FORM) R.drawable.faiz_pointer else if (user.form == Constant.SUPER_FORM) R.drawable.faiz_pointer_axel else R.drawable.faiz_pointer_blaster)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,4.5,3.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -257,7 +257,7 @@ class Faiz:KamenRider(
         }
     }
 
-    private class Blaster: Move("Faiz Blaster", "4 RP") {
+    private class Blaster: Move("Faiz Blaster", 4, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -272,7 +272,7 @@ class Faiz:KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,4)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,18)
                 intent.putExtra(Constant.ACCURACY_SET,85)
                 intent.putExtra(Constant.SPEED_SET,60)
@@ -288,7 +288,7 @@ class Faiz:KamenRider(
         }
     }
 
-    private class Breaker: Move("Photon Breaker", "1 RP") {
+    private class Breaker: Move("Photon Breaker", 1, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -301,10 +301,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,25)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_breaker)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_breaker)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.5,1.1)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -328,7 +328,7 @@ class Faiz:KamenRider(
         }
     }
 
-    private class Buster: Move("Photon Buster", "1 RP") {
+    private class Buster: Move("Photon Buster", 1, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -341,10 +341,10 @@ class Faiz:KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.ENERGY_DOWN,25)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_buster)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_buster)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,1.25,1.5)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)

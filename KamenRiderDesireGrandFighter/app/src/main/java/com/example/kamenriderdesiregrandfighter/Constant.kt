@@ -52,7 +52,7 @@ class Constant {
         const val GAME_OVER = "Game Over"
         const val WINNER = "winner"
         const val STATUS_MESSAGE = "special status"
-        const val MESSAGE = "message"
+        const val SET_MESSAGE = "message"
         const val IMAGE_ID = "image id"
         const val NOT_ENOUGH_SP = "Not Enough SP"
         const val NOT_ENOUGH_RP = "Not Enough RP"

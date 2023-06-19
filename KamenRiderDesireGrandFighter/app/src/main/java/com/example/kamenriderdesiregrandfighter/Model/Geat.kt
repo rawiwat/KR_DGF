@@ -8,7 +8,7 @@ class Geats: KamenRider(Constant.GEATS,
                         Constant.BASE_FORM,
                         100,10,10,10,90,1,
 ) {
-    private class CommandForm: Move("Command Buckle","2 RP") {
+    private class CommandForm: Move("Command Buckle",2, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -21,14 +21,14 @@ class Geats: KamenRider(Constant.GEATS,
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,2)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_UP,10)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    private class LaserBoost: Move("Laser Boost","3 RP") {
+    private class LaserBoost: Move("Laser Boost",3, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -42,14 +42,14 @@ class Geats: KamenRider(Constant.GEATS,
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.SUPER_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,3)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,15)
                 context.sendBroadcast(intent)
             }
         }
     }
 
-    private class GeatIX: Move("Mark IX","5 RP") {
+    private class GeatIX: Move("Mark IX",5, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -63,7 +63,7 @@ class Geats: KamenRider(Constant.GEATS,
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,5)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,25)
                 intent.putExtra(Constant.LUCK_UP,30)
                 context.sendBroadcast(intent)

@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.media.MediaPlayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -29,7 +28,7 @@ class Kabuto: KamenRider(
     Constant.BASE_FORM,
     95,8,10,50,95,11) {
 
-    class ClockUp: Move("Clock Up","40 SP") {
+    class ClockUp: Move("Clock Up",40, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -59,7 +58,7 @@ class Kabuto: KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.ENERGY_DOWN, 40)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.SPEED_SET, 250)
                 intent.putExtra(Constant.STATUS_MESSAGE,"CLOCK UP!")
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_clock_up)
@@ -81,7 +80,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class MaskForm: Move("Put On","20 SP") {
+    private class MaskForm: Move("Put On",20, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -96,7 +95,7 @@ class Kabuto: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
-                intent.putExtra(Constant.ENERGY_DOWN,20)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,10)
                 intent.putExtra(Constant.SPEED_SET,5)
                 intent.putExtra(Constant.DEFENSE_SET,20)
@@ -110,7 +109,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class CastOff: Move("Cast Off", "") {
+    private class CastOff: Move("Cast Off", 0 ,"") {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -139,7 +138,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class HyperForm: Move("Hyper Zector", "4 RP") {
+    private class HyperForm: Move("Hyper Zector", 4, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -154,7 +153,7 @@ class Kabuto: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
-                intent.putExtra(Constant.GAUGE_DOWN,4)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.ATTACK_SET,16)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_zector)
                 context.sendBroadcast(intent)
@@ -171,7 +170,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class HyperClockUp: Move("Hyper ClockUp","40 SP") {
+    private class HyperClockUp: Move("Hyper ClockUp",40, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -185,7 +184,7 @@ class Kabuto: KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.ENERGY_DOWN,40)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.SPEED_SET, 1000)
                 intent.putExtra(Constant.IMAGE_ID,R.drawable.kabuto_hyper_clock_up)
                 context.sendBroadcast(intent)
@@ -206,7 +205,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class KunaiGun: Move("Kunaigun","25 SP") {
+    private class KunaiGun: Move("Kunaigun",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -219,7 +218,7 @@ class Kabuto: KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val costIntent = Intent(keyUser)
-                costIntent.putExtra(Constant.ENERGY_DOWN, 25)
+                costIntent.putExtra(costType,cost)
                 costIntent.putExtra(Constant.IMAGE_ID, if (user.form == Constant.UPGRADE_FORM) R.drawable.kabuto_kunai_gun_masked else R.drawable.kabuto_kunai_gun)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
@@ -238,7 +237,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class RiderKick: Move("Rider Kick","3 RP") {
+    private class RiderKick: Move("Rider Kick",3, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -251,10 +250,10 @@ class Kabuto: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.GAUGE_DOWN,3)
-                cost.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.kabuto_rider_kick else R.drawable.kabuto_hyper_kick )
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.kabuto_rider_kick else R.drawable.kabuto_hyper_kick )
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,2.5,1.25)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -276,7 +275,7 @@ class Kabuto: KamenRider(
         }
     }
 
-    private class PerfectZector: Move("Perfect Zector","4 RP") {
+    private class PerfectZector: Move("Perfect Zector",4, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -289,10 +288,10 @@ class Kabuto: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.GAUGE_DOWN,4)
-                cost.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_perfect_zector)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_perfect_zector)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,4.0,5.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)

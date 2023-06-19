@@ -293,7 +293,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
     DisposableEffect(showPopUp) {
         val broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val message = intent?.getStringExtra(Constant.MESSAGE)
+                val message = intent?.getStringExtra(Constant.SET_MESSAGE)
                 if (message != null) {
                     popUpMessage = message
                     showPopUp = true
@@ -515,8 +515,9 @@ fun MoveButton(user: KamenRider, opponent: KamenRider, move: Move, keyUser: Stri
         onClick = { move.function(user, opponent, keyUser, keyOpponent, context) },
         modifier = Modifier.width(80.dp)
     ) {
+        val costType = if (move.costType == Constant.ENERGY_DOWN) "SP" else "RP"
         Text(
-            text = if (move.cost.isEmpty()) move.name else "${move.name}(${move.cost})"
+            text = if (move.cost == 0) move.name else "${move.name}(${move.cost} $costType)"
         )
     }
 }

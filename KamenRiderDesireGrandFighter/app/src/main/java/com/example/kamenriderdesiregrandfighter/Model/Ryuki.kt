@@ -24,7 +24,7 @@ class Ryuki: KamenRider(
     Constant.BASE_FORM,
     110,10,13,10,100,1) {
 
-    private class Survive:Move("Survive","4 RP") {
+    private class Survive:Move("Survive",4, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -53,7 +53,7 @@ class Ryuki: KamenRider(
         }
     }
 
-    private class SwordVent: Move("Sword Vent","25 SP") {
+    private class SwordVent: Move("Sword Vent",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -92,7 +92,7 @@ class Ryuki: KamenRider(
         }
     }
 
-    private class StrikeVent: Move("Strike Vent","25 SP") {
+    private class StrikeVent: Move("Strike Vent",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -132,7 +132,7 @@ class Ryuki: KamenRider(
     }
 
     //done
-    private class Advent: Move("Advent","2 RP") {
+    private class Advent: Move("Advent",2, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -146,10 +146,10 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.GAUGE_DOWN,2)
-                cost.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.advent else R.drawable.advent_survive)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID,if (user.form == Constant.BASE_FORM) R.drawable.advent else R.drawable.advent_survive)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,2.0,10.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
@@ -171,7 +171,7 @@ class Ryuki: KamenRider(
         }
     }
 
-    private class GuardVent: Move("Guard Vent","25 SP") {
+    private class GuardVent: Move("Guard Vent",25, Constant.ENERGY_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -185,7 +185,7 @@ class Ryuki: KamenRider(
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.ENERGY_DOWN,25)
+                intent.putExtra(costType,cost)
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 intent.putExtra(Constant.IMAGE_ID, R.drawable.guard_vent)
                 context.sendBroadcast(intent)
@@ -198,7 +198,7 @@ class Ryuki: KamenRider(
         }
     }
 
-    private class FinalVent: Move("Final Vent","5 RP") {
+    private class FinalVent: Move(name = "Final Vent", cost = 5,costType = Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -212,10 +212,10 @@ class Ryuki: KamenRider(
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
-                val cost = Intent(keyUser)
-                cost.putExtra(Constant.GAUGE_DOWN,5)
-                cost.putExtra(Constant.IMAGE_ID, if (user.form == Constant.BASE_FORM) R.drawable.final_vent else R.drawable.final_vent_survive)
-                context.sendBroadcast(cost)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, if (user.form == Constant.BASE_FORM) R.drawable.final_vent else R.drawable.final_vent_survive)
+                context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,6.0,10.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)

@@ -257,16 +257,39 @@ fun giveAGauge(context: Context, key: String) {
 
 fun getMessageIntent(intent:Intent, damage:DMGresult) {
     if (damage.hit && damage.crit) {
-        intent.putExtra(Constant.MESSAGE, "CRITICAL!\nHP-${damage.dmg}")
+        intent.putExtra(Constant.SET_MESSAGE, "CRITICAL!\nHP-${damage.dmg}")
     } else if (damage.hit && damage.dmg > 0) {
-        intent.putExtra(Constant.MESSAGE, "HP-${damage.dmg}")
+        intent.putExtra(Constant.SET_MESSAGE, "HP-${damage.dmg}")
     } else if (damage.hit) {
-        intent.putExtra(Constant.MESSAGE,"Blocked")
+        intent.putExtra(Constant.SET_MESSAGE,"Blocked")
     } else {
-        intent.putExtra(Constant.MESSAGE, "Missed")
+        intent.putExtra(Constant.SET_MESSAGE, "Missed")
     }
 }
 
+fun getDoubleAttackMessage(intent: Intent,damage1: DMGresult, damage2: DMGresult) {
+    var message:String
+    if (damage1.hit && damage1.crit) {
+        message = "CRITICAL!\nHP-${damage1.dmg}"
+    } else if (damage1.hit && damage1.dmg > 0) {
+        message = "HP-${damage1.dmg}"
+    } else if (damage1.hit) {
+        message = "Blocked"
+    } else {
+        message = "Missed"
+    }
+
+    if (damage2.hit && damage2.crit) {
+        message += "\nCRITICAL!\nHP-${damage2.dmg}"
+    } else if (damage2.hit && damage2.dmg > 0) {
+        message += "\nHP-${damage2.dmg}"
+    } else if (damage2.hit) {
+        message += "\nBlocked"
+    } else {
+        message += "\nMissed"
+    }
+    intent.putExtra(Constant.SET_MESSAGE, message)
+}
 fun getFormRequire(form: String): String {
     return "this ability require $form Form"
 }
