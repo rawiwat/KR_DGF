@@ -85,9 +85,14 @@ fun genericMoveSet(): List<Move> {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
+                val missingSP = Constant.MAX_ENERGY - user.energy
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.IMAGE_ID, getRiderImage(user.name,user.form))
-                intent.putExtra(Constant.ENERGY_UP,10)
+                if (missingSP >= 10) {
+                    intent.putExtra(Constant.ENERGY_UP,10)
+                } else {
+                    intent.putExtra(Constant.ENERGY_UP,missingSP)
+                }
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)

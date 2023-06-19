@@ -184,7 +184,7 @@ fun damageCalculation(
 
     var dodgeChance = (opponent.speed + opponent.luck)
 
-    var critChance = (user.luck + opponent.luck) / 10
+    var critChance = (user.luck) / 10
 
     val speedGap = if (user.speed > opponent.speed) {
         user.speed - opponent.speed
@@ -210,8 +210,8 @@ fun damageCalculation(
     val randomizingOutComeCrit = mutableListOf<Boolean>()
 
     for (outcome in possibleOutcome) {
-        val randomHit = if (outcome) (user.accuracy * accuracyMultiplier).toInt() else dodgeChance
-        val randomCrit = if (outcome) critChance else user.luck + opponent.luck
+        val randomHit = if (outcome) (user.accuracy * accuracyMultiplier).toInt() + user.speed else dodgeChance
+        val randomCrit = if (outcome) critChance else opponent.luck
         repeat(randomHit) { randomizingOutComeHit.add(outcome) }
         repeat(randomCrit) { randomizingOutComeCrit.add(outcome) }
     }

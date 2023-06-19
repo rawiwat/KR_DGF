@@ -49,6 +49,10 @@ class Ryuki: KamenRider(
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, "already survive")
+                context.sendBroadcast(intent)
             }
         }
     }

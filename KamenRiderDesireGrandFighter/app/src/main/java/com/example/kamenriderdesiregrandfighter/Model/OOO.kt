@@ -282,7 +282,7 @@ class OOO: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(costType,cost)
-                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.faiz_photon_breaker)
+                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.ooo_strain_doom)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,5.0,2.5)

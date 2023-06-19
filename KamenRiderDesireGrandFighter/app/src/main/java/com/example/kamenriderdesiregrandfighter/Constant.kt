@@ -27,6 +27,7 @@ class Constant {
         const val FORM_CHANGE = "form change"
         const val HEALTH_UP = "health up"
         const val HEALTH_DOWN = "health down"
+        const val HEALTH_SET = "health set"
         const val ENERGY_UP = "energy up"
         const val ENERGY_DOWN = "energy down"
         const val MAX_ENERGY = 100

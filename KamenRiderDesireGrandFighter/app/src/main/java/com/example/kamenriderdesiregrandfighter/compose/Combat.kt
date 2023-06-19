@@ -222,6 +222,8 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 currentHealth += healthUp
                 val healthDown = intent.getIntExtra(Constant.HEALTH_DOWN, 0)
                 currentHealth -= healthDown
+                val healthSet = intent.getIntExtra(Constant.HEALTH_SET,0)
+                if (healthSet != 0) currentHealth = healthSet
                 if (currentHealth <= 0) {
                     val gameState = Intent(Constant.GAME_OVER)
                     gameState.putExtra(Constant.GAME_OVER, true)
