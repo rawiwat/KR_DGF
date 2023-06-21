@@ -44,7 +44,7 @@ fun MainScreen(
 
 @Composable
 fun SinglePlayerButton(onClick: () -> Unit) {
-    Button(onClick = onClick , modifier = Modifier.padding(10.dp)) {
+    Button(onClick = onClick , modifier = Modifier.padding(10.dp), enabled = false) {
         Text(text = "SinglePlayer")
     }
 }
