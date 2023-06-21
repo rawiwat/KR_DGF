@@ -3,13 +3,10 @@ package com.example.kamenriderdesiregrandfighter.Model
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.media.MediaPlayer
 import com.example.kamenriderdesiregrandfighter.Constant
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.damageCalculation
-import com.example.kamenriderdesiregrandfighter.getFormName
-import com.example.kamenriderdesiregrandfighter.getFormRequire
 import com.example.kamenriderdesiregrandfighter.getMessageIntent
 import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.giveAGauge

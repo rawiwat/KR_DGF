@@ -23,7 +23,7 @@ import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFi
 
 class Geats: KamenRider(Constant.GEATS,
                         Constant.BASE_FORM,
-                        100,10,10,52,90,1,
+                        100,10,10,52,90,9,
 ) {
     private class Magnum: Move("Magnum Shooter",25, Constant.ENERGY_DOWN) {
         override fun function(
@@ -47,7 +47,7 @@ class Geats: KamenRider(Constant.GEATS,
                 val damage = damageCalculation(user, opponent,1.25,2.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.dmg > 0 && opponent.gauge < Constant.MAX_GAUGE) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
@@ -185,8 +185,8 @@ class Geats: KamenRider(Constant.GEATS,
                 }
                 intent.putExtra(Constant.GAUGE_UP,rpGain)
                 intent.putExtra(Constant.LUCK_UP,10)
-                intent.putExtra(Constant.SET_MESSAGE,"HP+10\nRP+$rpGain")
-                intent.putExtra(Constant.STATUS_MESSAGE,"Luck+10")
+                intent.putExtra(Constant.SET_MESSAGE,"HP+10")
+                intent.putExtra(Constant.STATUS_MESSAGE,"RP+$rpGain\nLuck+10")
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
@@ -281,7 +281,7 @@ class Geats: KamenRider(Constant.GEATS,
                 val damage = damageCalculation(user, opponent,4.5,3.5)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.hit) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)

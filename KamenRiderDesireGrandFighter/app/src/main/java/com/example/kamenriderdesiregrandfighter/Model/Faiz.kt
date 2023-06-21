@@ -55,7 +55,7 @@ class Faiz:KamenRider(
                 val damage = damageCalculation(user, opponent,1.25,1.2)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.hit) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
@@ -90,8 +90,10 @@ class Faiz:KamenRider(
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
-                    giveAGauge(context, keyOpponent)
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                }
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
             } else {
@@ -125,8 +127,10 @@ class Faiz:KamenRider(
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
-                    giveAGauge(context, keyOpponent)
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                }
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
                 exceedCharge.start()
@@ -161,8 +165,10 @@ class Faiz:KamenRider(
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 2)
-                    giveAGauge(context, keyOpponent)
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
+                }
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
                 exceedCharge.start()
@@ -312,8 +318,10 @@ class Faiz:KamenRider(
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 3)
-                    giveAGauge(context, keyOpponent)
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
+                }
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
                 burst.start()
@@ -352,8 +360,10 @@ class Faiz:KamenRider(
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
                     intent.putExtra(Constant.DEFENSE_DOWN, 3)
-                    giveAGauge(context, keyOpponent)
                     intent.putExtra(Constant.STATUS_MESSAGE,"DEF-3!")
+                }
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
                 burst.start()

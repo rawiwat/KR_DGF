@@ -18,10 +18,8 @@ import com.example.kamenriderdesiregrandfighter.damageCalculation
 import com.example.kamenriderdesiregrandfighter.getFormName
 import com.example.kamenriderdesiregrandfighter.getFormRequire
 import com.example.kamenriderdesiregrandfighter.getMessageIntent
-import com.example.kamenriderdesiregrandfighter.getRiderImage
 import com.example.kamenriderdesiregrandfighter.giveAGauge
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
-import kotlin.math.cos
 
 class Gaim: KamenRider(
     Constant.GAIM,
@@ -44,7 +42,7 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(costType, cost)
-                intent.putExtra(Constant.IMAGE_ID, getRiderImage(user.name,user.form))
+                intent.putExtra(Constant.IMAGE_ID, R.drawable.gaim_golden_fruit)
                 intent.putExtra(Constant.HEALTH_UP, 10)
                 intent.putExtra(Constant.LUCK_UP,10)
                 intent.putExtra(Constant.SET_MESSAGE,"HP+10")
@@ -73,6 +71,7 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 val intent = Intent(keyUser)
                 intent.putExtra(costType,cost)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.gaim_jimbra)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
                 intent.putExtra(Constant.ATTACK_SET,12)
                 intent.putExtra(Constant.DEFENSE_SET,20)
@@ -108,6 +107,7 @@ class Gaim: KamenRider(
                 context.sendBroadcast(changeTurn)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.SUPER_FORM)
                 intent.putExtra(costType,cost)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.gaim_kachidoki)
                 intent.putExtra(Constant.ATTACK_SET,18)
                 intent.putExtra(Constant.DEFENSE_SET,20)
                 context.sendBroadcast(intent)
@@ -140,6 +140,7 @@ class Gaim: KamenRider(
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.FORM_CHANGE,Constant.FINAL_FORM)
                 intent.putExtra(costType,cost)
+                intent.putExtra(Constant.IMAGE_ID,R.drawable.gaim_kiwami)
                 intent.putExtra(Constant.ATTACK_SET,24)
                 intent.putExtra(Constant.DEFENSE_SET,25)
                 context.sendBroadcast(intent)
@@ -155,7 +156,7 @@ class Gaim: KamenRider(
         }
     }
 
-    private class KiwamiAuLait: Move("Kiwami Finish",4, Constant.GAUGE_DOWN) {
+    private class AuLait: Move("Hinawadaidai",4, Constant.GAUGE_DOWN) {
         override fun function(
             user: KamenRider,
             opponent: KamenRider,
@@ -163,31 +164,106 @@ class Gaim: KamenRider(
             keyOpponent: String,
             context: Context
         ) {
-            val sound = MediaPlayer.create(context, R.raw.kiwami_finisher)
-            if (user.gauge >= cost && user.form == Constant.FINAL_FORM) {
+            if (user.gauge >= cost && (user.form == Constant.FINAL_FORM || user.form == Constant.SUPER_FORM)) {
+                val sound1 = MediaPlayer.create(context, R.raw.kachidoki_finish)
+                val sound2 = MediaPlayer.create(context, R.raw.kiwami_finisher)
+                if (user.form == Constant.SUPER_FORM) {
+                    sound1.start()
+                } else {
+                    sound2.start()
+                }
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)
                 val costIntent = Intent(keyUser)
                 costIntent.putExtra(costType,cost)
-                costIntent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_perfect_zector)
+                val imageId = if (user.form == Constant.FINAL_FORM) R.drawable.gaim_kiwami_finisher else R.drawable.gaim_kachidoki_finisher
+                costIntent.putExtra(Constant.IMAGE_ID, imageId)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
                 val damage = damageCalculation(user, opponent,4.5,2.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.hit) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
-                sound.start()
             } else if (user.gauge < cost) {
                 val intent = Intent(keyUser)
                 intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             } else {
                 val intent = Intent(keyUser)
-                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.KABUTO,Constant.FINAL_FORM)))
+                intent.putExtra(Constant.STATUS_MESSAGE, getFormRequire(getFormName(Constant.GAIM,Constant.SUPER_FORM))+" or higher")
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    private class Rejuvenation: Move("Rejuvenation",60,Constant.ENERGY_DOWN) {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= cost) {
+                val chargeSound = MediaPlayer.create(context,R.raw.charge_sound)
+                chargeSound.start()
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val intent = Intent(keyUser)
+                intent.putExtra(costType, cost)
+                val rpGain = if (user.gauge >= Constant.MAX_GAUGE) {
+                    0
+                } else if (user.gauge == 9) {
+                    1
+                } else {
+                    2
+                }
+                intent.putExtra(Constant.GAUGE_UP,rpGain)
+                intent.putExtra(Constant.SET_MESSAGE,"RP+$rpGain")
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_SP)
+                context.sendBroadcast(intent)
+            }
+        }
+    }
+
+    private class Squash: Move("Squash",25, Constant.ENERGY_DOWN) {
+        override fun function(
+            user: KamenRider,
+            opponent: KamenRider,
+            keyUser: String,
+            keyOpponent: String,
+            context: Context
+        ) {
+            if (user.energy >= 25) {
+                val sound1 = MediaPlayer.create(context,R.raw.orange_finish)
+                val sound2 = MediaPlayer.create(context,R.raw.jimbra_lemon_finish)
+                if (user.form == Constant.UPGRADE_FORM) sound2.start() else sound1.start()
+                val changeTurn = Intent(Constant.TURN_CHANGE)
+                changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
+                context.sendBroadcast(changeTurn)
+                val costIntent = Intent(keyUser)
+                costIntent.putExtra(costType,cost)
+                costIntent.putExtra(Constant.IMAGE_ID, if (user.form == Constant.UPGRADE_FORM) R.drawable.gaim_jimbra_finish else R.drawable.gaim_orange_finish)
+                context.sendBroadcast(costIntent)
+                val intent = Intent(keyOpponent)
+                val damage = damageCalculation(user, opponent,1.55,1.0)
+                intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
+                getMessageIntent(intent, damage)
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
+                    giveAGauge(context, keyOpponent)
+                }
+                context.sendBroadcast(intent)
+            } else {
+                val intent = Intent(keyUser)
+                intent.putExtra(Constant.STATUS_MESSAGE, Constant.NOT_ENOUGH_RP)
                 context.sendBroadcast(intent)
             }
         }
@@ -195,11 +271,13 @@ class Gaim: KamenRider(
 
     init {
         val moveList: MutableList<Move> = mutableListOf(
+            Squash(),
             ManOfBeginning(),
+            Rejuvenation(),
             Jimbra(),
             Kadochiki(),
             Kiwami(),
-            KiwamiAuLait()
+            AuLait()
         )
         for (move in moveList) { moveSet.add(move) }
     }

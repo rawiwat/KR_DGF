@@ -48,6 +48,7 @@ import com.example.kamenriderdesiregrandfighter.MainActivity
 import com.example.kamenriderdesiregrandfighter.R
 import com.example.kamenriderdesiregrandfighter.Screen
 import com.example.kamenriderdesiregrandfighter.getImageIDFromName
+import com.example.kamenriderdesiregrandfighter.getSoundInFighterSelection
 import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFighterTheme
 
 @Composable
@@ -93,6 +94,8 @@ fun FighterSelectionScreen(
                         name = it,
                         modifier = Modifier
                         .clickable {
+                            val sound = getSoundInFighterSelection(it,context)
+                            sound.start()
                         if (!playerOneConfirmed) {
                             characterOne = it
                             val intent = Intent(Constant.FIGHTER_SELECTION)

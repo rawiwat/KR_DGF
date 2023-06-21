@@ -227,7 +227,7 @@ class Kabuto: KamenRider(
                 val damage = damageCalculation(user, opponent,1.25,2.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.dmg > 0 && opponent.gauge < Constant.MAX_GAUGE) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
@@ -260,7 +260,7 @@ class Kabuto: KamenRider(
                 val damage = damageCalculation(user, opponent,2.5,1.5)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.dmg > 0) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)
@@ -298,7 +298,7 @@ class Kabuto: KamenRider(
                 val damage = damageCalculation(user, opponent,4.2,5.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
-                if (damage.hit) {
+                if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }
                 context.sendBroadcast(intent)

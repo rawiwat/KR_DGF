@@ -119,7 +119,6 @@ class OOO: KamenRider(
                     attack.putExtra(Constant.DEFENSE_DOWN, 2)
                     attack.putExtra(Constant.STATUS_MESSAGE,"DEF-2!")
                 }
-
                 if (damage.hit && opponent.gauge < Constant.MAX_GAUGE) {
                     giveAGauge(context, keyOpponent)
                 }

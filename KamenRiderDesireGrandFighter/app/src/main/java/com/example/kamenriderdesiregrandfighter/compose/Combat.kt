@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -212,7 +213,7 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
     }
 
     var imageDisplayed by rememberSaveable {
-        mutableStateOf(R.drawable.faiz)
+        mutableStateOf(R.drawable.kabuto_hyper_kick)
     }
 
     DisposableEffect(currentHealth) {
@@ -466,10 +467,8 @@ fun Fighter(kamenRider: KamenRider, nameTag: String, playerKey: String, opponent
                 painter = painterResource(id = imageDisplayed),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(start = 15.dp, top = 125.dp)
-                    .width(150.dp)
-                    .height(212.dp),
-                contentScale = ContentScale.Crop
+                    .padding(top = 125.dp, start = 25.dp, bottom = 20.dp),
+                contentScale = ContentScale.FillBounds
             )
         }
     }
