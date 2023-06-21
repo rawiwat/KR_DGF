@@ -519,7 +519,8 @@ fun MoveButton(user: KamenRider, opponent: KamenRider, move: Move, keyUser: Stri
     ) {
         val costType = if (move.costType == Constant.ENERGY_DOWN) "SP" else "RP"
         Text(
-            text = if (move.cost == 0) move.name else "${move.name}(${move.cost} $costType)"
+            text = if (move.cost == 0) move.name else "${move.name}(${move.cost} $costType)",
+            fontSize = 12.sp
         )
     }
 }

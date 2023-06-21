@@ -22,7 +22,7 @@ import com.example.kamenriderdesiregrandfighter.ui.theme.KamenRiderDesireGrandFi
 class Ryuki: KamenRider(
     Constant.RYUKI,
     Constant.BASE_FORM,
-    110,10,13,10,100,1) {
+    110,10,13,40,100,1) {
 
     private class Survive:Move("Survive",4, Constant.GAUGE_DOWN) {
         override fun function(

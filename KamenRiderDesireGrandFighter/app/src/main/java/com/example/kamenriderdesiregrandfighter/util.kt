@@ -2,16 +2,6 @@ package com.example.kamenriderdesiregrandfighter
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.debugInspectorInfo
 import com.example.kamenriderdesiregrandfighter.Model.Faiz
 import com.example.kamenriderdesiregrandfighter.Model.Gaim
 import com.example.kamenriderdesiregrandfighter.Model.Geats
@@ -166,9 +156,7 @@ fun damageCalculation(
     accuracyMultiplier: Double
 ): DMGresult {
 
-    val powerGap = if (user.attack > opponent.defense) {
-        user.attack - opponent.defense
-    } else if (user.attack < opponent.defense) {
+    val powerGap = if (user.attack < opponent.defense) {
         opponent.defense - user.attack
     } else {
         0
@@ -182,7 +170,7 @@ fun damageCalculation(
         0
     }
 
-    var dodgeChance = (opponent.speed + opponent.luck)
+    var dodgeChance = (opponent.speed + opponent.luck) / 10
 
     var critChance = (user.luck) / 10
 
@@ -210,7 +198,8 @@ fun damageCalculation(
     val randomizingOutComeCrit = mutableListOf<Boolean>()
 
     for (outcome in possibleOutcome) {
-        val randomHit = if (outcome) (user.accuracy * accuracyMultiplier).toInt() + user.speed else dodgeChance
+        val randomHit =
+            if (outcome) (user.accuracy * accuracyMultiplier).toInt() + user.speed else dodgeChance
         val randomCrit = if (outcome) critChance else opponent.luck
         repeat(randomHit) { randomizingOutComeHit.add(outcome) }
         repeat(randomCrit) { randomizingOutComeCrit.add(outcome) }
@@ -220,76 +209,79 @@ fun damageCalculation(
     val crit = randomizingOutComeCrit.random()
 
     if (hit && crit) {
-        result = if (user.attack > opponent.defense) {
-            (user.attack * powerMultiplier * 2 + Random.nextInt(powerGap)).toInt()
-        } else (user.attack * powerMultiplier * 2).toInt()
+        result = (user.attack * powerMultiplier * 2).toInt()
     } else if (hit) {
-        result = if (user.attack > opponent.defense) {
-            (user.attack * powerMultiplier + Random.nextInt(powerGap)).toInt()
-        } else if (user.attack < opponent.defense) {
+        result = if (user.attack >= opponent.defense) {
+            (user.attack * powerMultiplier).toInt()
+        } else {
             (user.attack * powerMultiplier - Random.nextInt(powerGap)).toInt()
-        } else (user.attack * powerMultiplier).toInt()
+        }
     }
-
     if (result < 0) {
         result = 0
     }
-
     return DMGresult(result, hit, crit)
 }
 
-
-fun getRandomRider(): String {
-    val playableCharacters = listOf(Constant.GEATS,Constant.OOO,Constant.GAIM,Constant.FAIZ,Constant.KABUTO,Constant.RYUKI)
-    return playableCharacters.random()
-}
-
-fun getRandomPlayer(): String {
-    val playerList = listOf(Constant.PLAYER_ONE, Constant.PLAYER_TWO)
-    return playerList.random()
-}
-
-fun giveAGauge(context: Context, key: String) {
-    val intent = Intent(key)
-    intent.putExtra(Constant.GAUGE_UP,1)
-    context.sendBroadcast(intent)
-}
-
-fun getMessageIntent(intent:Intent, damage:DMGresult) {
-    if (damage.hit && damage.crit) {
-        intent.putExtra(Constant.SET_MESSAGE, "CRITICAL!\nHP-${damage.dmg}")
-    } else if (damage.hit && damage.dmg > 0) {
-        intent.putExtra(Constant.SET_MESSAGE, "HP-${damage.dmg}")
-    } else if (damage.hit) {
-        intent.putExtra(Constant.SET_MESSAGE,"Blocked")
-    } else {
-        intent.putExtra(Constant.SET_MESSAGE, "Missed")
-    }
-}
-
-fun getDoubleAttackMessage(intent: Intent,damage1: DMGresult, damage2: DMGresult) {
-    var message:String
-    if (damage1.hit && damage1.crit) {
-        message = "CRITICAL!\nHP-${damage1.dmg}"
-    } else if (damage1.hit && damage1.dmg > 0) {
-        message = "HP-${damage1.dmg}"
-    } else if (damage1.hit) {
-        message = "Blocked"
-    } else {
-        message = "Missed"
+    fun getRandomRider(): String {
+        val playableCharacters = listOf(
+            Constant.GEATS,
+            Constant.OOO,
+            Constant.GAIM,
+            Constant.FAIZ,
+            Constant.KABUTO,
+            Constant.RYUKI
+        )
+        return playableCharacters.random()
     }
 
-    if (damage2.hit && damage2.crit) {
-        message += "\nCRITICAL!\nHP-${damage2.dmg}"
-    } else if (damage2.hit && damage2.dmg > 0) {
-        message += "\nHP-${damage2.dmg}"
-    } else if (damage2.hit) {
-        message += "\nBlocked"
-    } else {
-        message += "\nMissed"
+    fun getRandomPlayer(): String {
+        val playerList = listOf(Constant.PLAYER_ONE, Constant.PLAYER_TWO)
+        return playerList.random()
     }
-    intent.putExtra(Constant.SET_MESSAGE, message)
-}
-fun getFormRequire(form: String): String {
-    return "this ability require $form Form"
-}
+
+    fun giveAGauge(context: Context, key: String) {
+        val intent = Intent(key)
+        intent.putExtra(Constant.GAUGE_UP, 1)
+        context.sendBroadcast(intent)
+    }
+
+    fun getMessageIntent(intent: Intent, damage: DMGresult) {
+        if (damage.hit && damage.crit) {
+            intent.putExtra(Constant.SET_MESSAGE, "CRITICAL!\nHP-${damage.dmg}")
+        } else if (damage.hit && damage.dmg > 0) {
+            intent.putExtra(Constant.SET_MESSAGE, "HP-${damage.dmg}")
+        } else if (damage.hit) {
+            intent.putExtra(Constant.SET_MESSAGE, "Blocked")
+        } else {
+            intent.putExtra(Constant.SET_MESSAGE, "Missed")
+        }
+    }
+
+    fun getDoubleAttackMessage(intent: Intent, damage1: DMGresult, damage2: DMGresult) {
+        var message: String
+        if (damage1.hit && damage1.crit) {
+            message = "CRITICAL!\nHP-${damage1.dmg}"
+        } else if (damage1.hit && damage1.dmg > 0) {
+            message = "HP-${damage1.dmg}"
+        } else if (damage1.hit) {
+            message = "Blocked"
+        } else {
+            message = "Missed"
+        }
+
+        if (damage2.hit && damage2.crit) {
+            message += "\nCRITICAL!\nHP-${damage2.dmg}"
+        } else if (damage2.hit && damage2.dmg > 0) {
+            message += "\nHP-${damage2.dmg}"
+        } else if (damage2.hit) {
+            message += "\nBlocked"
+        } else {
+            message += "\nMissed"
+        }
+        intent.putExtra(Constant.SET_MESSAGE, message)
+    }
+
+    fun getFormRequire(form: String): String {
+        return "this ability require $form Form"
+    }

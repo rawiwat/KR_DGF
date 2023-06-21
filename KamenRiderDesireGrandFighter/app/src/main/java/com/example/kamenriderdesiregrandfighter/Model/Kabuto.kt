@@ -295,7 +295,7 @@ class Kabuto: KamenRider(
                 costIntent.putExtra(Constant.IMAGE_ID, R.drawable.kabuto_perfect_zector)
                 context.sendBroadcast(costIntent)
                 val intent = Intent(keyOpponent)
-                val damage = damageCalculation(user, opponent,4.0,5.0)
+                val damage = damageCalculation(user, opponent,4.2,5.0)
                 intent.putExtra(Constant.HEALTH_DOWN, damage.dmg)
                 getMessageIntent(intent, damage)
                 if (damage.hit) {
