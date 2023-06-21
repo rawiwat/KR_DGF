@@ -346,7 +346,7 @@ class Faiz:KamenRider(
             context: Context
         ) {
             val burst = MediaPlayer.create(context,R.raw.burst_mode)
-            if(user.form == Constant.FINAL_FORM && user.gauge >= 1) {
+            if(user.form == Constant.FINAL_FORM && user.gauge >= cost) {
                 val changeTurn = Intent(Constant.TURN_CHANGE)
                 changeTurn.putExtra(Constant.TURN_CHANGE, keyOpponent)
                 context.sendBroadcast(changeTurn)

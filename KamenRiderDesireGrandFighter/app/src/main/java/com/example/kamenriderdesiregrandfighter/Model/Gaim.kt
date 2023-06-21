@@ -75,7 +75,6 @@ class Gaim: KamenRider(
                 intent.putExtra(Constant.FORM_CHANGE,Constant.UPGRADE_FORM)
                 intent.putExtra(Constant.ATTACK_SET,12)
                 intent.putExtra(Constant.DEFENSE_SET,20)
-                intent.putExtra(Constant.IMAGE_ID, R.drawable.survive)
                 context.sendBroadcast(intent)
                 jimbraSound.start()
             } else if (user.gauge < 2) {
